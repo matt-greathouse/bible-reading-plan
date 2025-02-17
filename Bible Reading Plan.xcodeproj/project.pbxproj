@@ -6,7 +6,20 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		62D89CB42D63C1AE005A19A4 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62D89CB32D63C1AD005A19A4 /* WidgetKit.framework */; };
+		62D89CB62D63C1AE005A19A4 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62D89CB52D63C1AE005A19A4 /* SwiftUI.framework */; };
+		62D89CC72D63C1AF005A19A4 /* Bible Reading Plan WidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 62D89CB12D63C1AD005A19A4 /* Bible Reading Plan WidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
+		62D89CC52D63C1AF005A19A4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 62E012002D63A8BC0078DD7F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 62D89CB02D63C1AD005A19A4;
+			remoteInfo = "Bible Reading Plan WidgetExtension";
+		};
 		62E012192D63A8BE0078DD7F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 62E012002D63A8BC0078DD7F /* Project object */;
@@ -23,13 +36,48 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		62D89CC82D63C1AF005A19A4 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				62D89CC72D63C1AF005A19A4 /* Bible Reading Plan WidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		62D89CB12D63C1AD005A19A4 /* Bible Reading Plan WidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Bible Reading Plan WidgetExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		62D89CB32D63C1AD005A19A4 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		62D89CB52D63C1AE005A19A4 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		62E012082D63A8BC0078DD7F /* Bible Reading Plan.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Bible Reading Plan.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		62E012182D63A8BE0078DD7F /* Bible Reading PlanTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Bible Reading PlanTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		62E012222D63A8BE0078DD7F /* Bible Reading PlanUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Bible Reading PlanUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		62D89CCB2D63C1AF005A19A4 /* Exceptions for "Bible Reading Plan Widget" folder in "Bible Reading Plan WidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 62D89CB02D63C1AD005A19A4 /* Bible Reading Plan WidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		62D89CB72D63C1AE005A19A4 /* Bible Reading Plan Widget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				62D89CCB2D63C1AF005A19A4 /* Exceptions for "Bible Reading Plan Widget" folder in "Bible Reading Plan WidgetExtension" target */,
+			);
+			path = "Bible Reading Plan Widget";
+			sourceTree = "<group>";
+		};
 		62E0120A2D63A8BC0078DD7F /* Bible Reading Plan */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Bible Reading Plan";
@@ -48,6 +96,15 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		62D89CAE2D63C1AD005A19A4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62D89CB62D63C1AE005A19A4 /* SwiftUI.framework in Frameworks */,
+				62D89CB42D63C1AE005A19A4 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		62E012052D63A8BC0078DD7F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -72,12 +129,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		62D89CB22D63C1AD005A19A4 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				62D89CB32D63C1AD005A19A4 /* WidgetKit.framework */,
+				62D89CB52D63C1AE005A19A4 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		62E011FF2D63A8BC0078DD7F = {
 			isa = PBXGroup;
 			children = (
 				62E0120A2D63A8BC0078DD7F /* Bible Reading Plan */,
 				62E0121B2D63A8BE0078DD7F /* Bible Reading PlanTests */,
 				62E012252D63A8BE0078DD7F /* Bible Reading PlanUITests */,
+				62D89CB72D63C1AE005A19A4 /* Bible Reading Plan Widget */,
+				62D89CB22D63C1AD005A19A4 /* Frameworks */,
 				62E012092D63A8BC0078DD7F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,6 +156,7 @@
 				62E012082D63A8BC0078DD7F /* Bible Reading Plan.app */,
 				62E012182D63A8BE0078DD7F /* Bible Reading PlanTests.xctest */,
 				62E012222D63A8BE0078DD7F /* Bible Reading PlanUITests.xctest */,
+				62D89CB12D63C1AD005A19A4 /* Bible Reading Plan WidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,6 +164,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		62D89CB02D63C1AD005A19A4 /* Bible Reading Plan WidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 62D89CCC2D63C1AF005A19A4 /* Build configuration list for PBXNativeTarget "Bible Reading Plan WidgetExtension" */;
+			buildPhases = (
+				62D89CAD2D63C1AD005A19A4 /* Sources */,
+				62D89CAE2D63C1AD005A19A4 /* Frameworks */,
+				62D89CAF2D63C1AD005A19A4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				62D89CB72D63C1AE005A19A4 /* Bible Reading Plan Widget */,
+			);
+			name = "Bible Reading Plan WidgetExtension";
+			packageProductDependencies = (
+			);
+			productName = "Bible Reading Plan WidgetExtension";
+			productReference = 62D89CB12D63C1AD005A19A4 /* Bible Reading Plan WidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		62E012072D63A8BC0078DD7F /* Bible Reading Plan */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 62E0122C2D63A8BE0078DD7F /* Build configuration list for PBXNativeTarget "Bible Reading Plan" */;
@@ -102,10 +193,12 @@
 				62E012042D63A8BC0078DD7F /* Sources */,
 				62E012052D63A8BC0078DD7F /* Frameworks */,
 				62E012062D63A8BC0078DD7F /* Resources */,
+				62D89CC82D63C1AF005A19A4 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				62D89CC62D63C1AF005A19A4 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				62E0120A2D63A8BC0078DD7F /* Bible Reading Plan */,
@@ -173,6 +266,9 @@
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
+					62D89CB02D63C1AD005A19A4 = {
+						CreatedOnToolsVersion = 16.2;
+					};
 					62E012072D63A8BC0078DD7F = {
 						CreatedOnToolsVersion = 16.2;
 					};
@@ -203,11 +299,19 @@
 				62E012072D63A8BC0078DD7F /* Bible Reading Plan */,
 				62E012172D63A8BE0078DD7F /* Bible Reading PlanTests */,
 				62E012212D63A8BE0078DD7F /* Bible Reading PlanUITests */,
+				62D89CB02D63C1AD005A19A4 /* Bible Reading Plan WidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		62D89CAF2D63C1AD005A19A4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		62E012062D63A8BC0078DD7F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -232,6 +336,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		62D89CAD2D63C1AD005A19A4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		62E012042D63A8BC0078DD7F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -256,6 +367,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		62D89CC62D63C1AF005A19A4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 62D89CB02D63C1AD005A19A4 /* Bible Reading Plan WidgetExtension */;
+			targetProxy = 62D89CC52D63C1AF005A19A4 /* PBXContainerItemProxy */;
+		};
 		62E0121A2D63A8BE0078DD7F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 62E012072D63A8BC0078DD7F /* Bible Reading Plan */;
@@ -269,6 +385,62 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		62D89CC92D63C1AF005A19A4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = MVM4SNA9YU;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Bible Reading Plan Widget/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Bible Reading Plan Widget";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "mattgreat.house.Bible-Reading-Plan.Bible-Reading-Plan-Widget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		62D89CCA2D63C1AF005A19A4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = MVM4SNA9YU;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Bible Reading Plan Widget/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Bible Reading Plan Widget";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "mattgreat.house.Bible-Reading-Plan.Bible-Reading-Plan-Widget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		62E0122A2D63A8BE0078DD7F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -321,7 +493,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -378,7 +550,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -404,6 +576,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -433,6 +606,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -454,7 +628,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = MVM4SNA9YU;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "mattgreat.house.Bible-Reading-PlanTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -473,7 +647,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = MVM4SNA9YU;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "mattgreat.house.Bible-Reading-PlanTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -521,6 +695,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		62D89CCC2D63C1AF005A19A4 /* Build configuration list for PBXNativeTarget "Bible Reading Plan WidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				62D89CC92D63C1AF005A19A4 /* Debug */,
+				62D89CCA2D63C1AF005A19A4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		62E012032D63A8BC0078DD7F /* Build configuration list for PBXProject "Bible Reading Plan" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
