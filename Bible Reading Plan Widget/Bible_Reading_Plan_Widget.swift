@@ -8,33 +8,6 @@
 import WidgetKit
 import SwiftUI
 
-struct Provider: AppIntentTimelineProvider {
-    func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: ConfigurationAppIntent())
-    }
-
-    func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: configuration)
-    }
-    
-    func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        var entries: [SimpleEntry] = []
-
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let currentDate = Date()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, configuration: configuration)
-            entries.append(entry)
-        }
-
-        return Timeline(entries: entries, policy: .atEnd)
-    }
-
-//    func relevances() async -> WidgetRelevances<ConfigurationAppIntent> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
-}
 
 struct SimpleEntry: TimelineEntry {
     let date: Date
@@ -42,16 +15,17 @@ struct SimpleEntry: TimelineEntry {
 }
 
 struct Bible_Reading_Plan_WidgetEntryView : View {
-    var entry: Provider.Entry
-
     var body: some View {
-        VStack {
-            Text("Time:")
-            Text(entry.date, style: .time)
+        let currentBook = UserDefaults.standard.string(forKey: "currentBook") ?? "No Book"
+        let currentChapterRange = UserDefaults.standard.string(forKey: "currentChapterRange") ?? "No Chapter"
 
-            Text("Favorite Emoji:")
-            Text(entry.configuration.favoriteEmoji)
+        VStack {
+            Text("Today's Reading")
+                .font(.headline)
+            Text("\(currentBook) \(currentChapterRange)")
+                .font(.subheadline)
         }
+        .containerBackground(Color.clear, for: .widget)
     }
 }
 
@@ -59,30 +33,40 @@ struct Bible_Reading_Plan_Widget: Widget {
     let kind: String = "Bible_Reading_Plan_Widget"
 
     var body: some WidgetConfiguration {
-        AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
-            Bible_Reading_Plan_WidgetEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+        StaticConfiguration(kind: kind, provider: Provider()) { entry in
+            Bible_Reading_Plan_WidgetEntryView()
         }
+        .configurationDisplayName("Bible Reading Plan Widget")
+        .description("Shows the current book and chapter range for the day's reading.")
+    }
+}
+
+struct Provider: TimelineProvider {
+    func placeholder(in context: Context) -> SimpleEntry {
+        SimpleEntry(date: Date(), configuration: ConfigurationAppIntent())
+    }
+
+    func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
+        let entry = SimpleEntry(date: Date(), configuration: ConfigurationAppIntent())
+        completion(entry)
+    }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<SimpleEntry>) -> ()) {
+        let currentDate = Date()
+        let entry = SimpleEntry(date: currentDate, configuration: ConfigurationAppIntent())
+        
+        // Refreshing the widget every hour
+        let nextUpdateDate = Calendar.current.date(byAdding: .hour, value: 1, to: currentDate)!
+        let timeline = Timeline(entries: [entry], policy: .after(nextUpdateDate))
+        completion(timeline)
     }
 }
 
 extension ConfigurationAppIntent {
-    fileprivate static var smiley: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "😀"
-        return intent
-    }
-    
-    fileprivate static var starEyes: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "🤩"
-        return intent
-    }
 }
 
 #Preview(as: .systemSmall) {
     Bible_Reading_Plan_Widget()
 } timeline: {
-    SimpleEntry(date: .now, configuration: .smiley)
-    SimpleEntry(date: .now, configuration: .starEyes)
+    SimpleEntry(date: Date(), configuration: ConfigurationAppIntent())
 }

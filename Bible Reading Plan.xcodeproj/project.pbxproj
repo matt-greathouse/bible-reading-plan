@@ -7,17 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		62D89CB42D63C1AE005A19A4 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62D89CB32D63C1AD005A19A4 /* WidgetKit.framework */; };
-		62D89CB62D63C1AE005A19A4 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62D89CB52D63C1AE005A19A4 /* SwiftUI.framework */; };
-		62D89CC72D63C1AF005A19A4 /* Bible Reading Plan WidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 62D89CB12D63C1AD005A19A4 /* Bible Reading Plan WidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		62D89CD22D63C51B005A19A4 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62D89CB32D63C1AD005A19A4 /* WidgetKit.framework */; };
+		62D89CD32D63C51B005A19A4 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62D89CB52D63C1AE005A19A4 /* SwiftUI.framework */; };
+		62D89CE42D63C51C005A19A4 /* Bible Reading Plan WidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 62D89CD12D63C51B005A19A4 /* Bible Reading Plan WidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		62D89CC52D63C1AF005A19A4 /* PBXContainerItemProxy */ = {
+		62D89CE22D63C51C005A19A4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 62E012002D63A8BC0078DD7F /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 62D89CB02D63C1AD005A19A4;
+			remoteGlobalIDString = 62D89CD02D63C51B005A19A4;
 			remoteInfo = "Bible Reading Plan WidgetExtension";
 		};
 		62E012192D63A8BE0078DD7F /* PBXContainerItemProxy */ = {
@@ -43,7 +43,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				62D89CC72D63C1AF005A19A4 /* Bible Reading Plan WidgetExtension.appex in Embed Foundation Extensions */,
+				62D89CE42D63C51C005A19A4 /* Bible Reading Plan WidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -51,29 +51,29 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		62D89CB12D63C1AD005A19A4 /* Bible Reading Plan WidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Bible Reading Plan WidgetExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		62D89CB32D63C1AD005A19A4 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		62D89CB52D63C1AE005A19A4 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		62D89CD12D63C51B005A19A4 /* Bible Reading Plan WidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Bible Reading Plan WidgetExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		62E012082D63A8BC0078DD7F /* Bible Reading Plan.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Bible Reading Plan.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		62E012182D63A8BE0078DD7F /* Bible Reading PlanTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Bible Reading PlanTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		62E012222D63A8BE0078DD7F /* Bible Reading PlanUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Bible Reading PlanUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		62D89CCB2D63C1AF005A19A4 /* Exceptions for "Bible Reading Plan Widget" folder in "Bible Reading Plan WidgetExtension" target */ = {
+		62D89CE52D63C51C005A19A4 /* Exceptions for "Bible Reading Plan Widget" folder in "Bible Reading Plan WidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 62D89CB02D63C1AD005A19A4 /* Bible Reading Plan WidgetExtension */;
+			target = 62D89CD02D63C51B005A19A4 /* Bible Reading Plan WidgetExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		62D89CB72D63C1AE005A19A4 /* Bible Reading Plan Widget */ = {
+		62D89CD42D63C51B005A19A4 /* Bible Reading Plan Widget */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				62D89CCB2D63C1AF005A19A4 /* Exceptions for "Bible Reading Plan Widget" folder in "Bible Reading Plan WidgetExtension" target */,
+				62D89CE52D63C51C005A19A4 /* Exceptions for "Bible Reading Plan Widget" folder in "Bible Reading Plan WidgetExtension" target */,
 			);
 			path = "Bible Reading Plan Widget";
 			sourceTree = "<group>";
@@ -96,12 +96,12 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		62D89CAE2D63C1AD005A19A4 /* Frameworks */ = {
+		62D89CCE2D63C51B005A19A4 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				62D89CB62D63C1AE005A19A4 /* SwiftUI.framework in Frameworks */,
-				62D89CB42D63C1AE005A19A4 /* WidgetKit.framework in Frameworks */,
+				62D89CD32D63C51B005A19A4 /* SwiftUI.framework in Frameworks */,
+				62D89CD22D63C51B005A19A4 /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -144,7 +144,7 @@
 				62E0120A2D63A8BC0078DD7F /* Bible Reading Plan */,
 				62E0121B2D63A8BE0078DD7F /* Bible Reading PlanTests */,
 				62E012252D63A8BE0078DD7F /* Bible Reading PlanUITests */,
-				62D89CB72D63C1AE005A19A4 /* Bible Reading Plan Widget */,
+				62D89CD42D63C51B005A19A4 /* Bible Reading Plan Widget */,
 				62D89CB22D63C1AD005A19A4 /* Frameworks */,
 				62E012092D63A8BC0078DD7F /* Products */,
 			);
@@ -156,7 +156,7 @@
 				62E012082D63A8BC0078DD7F /* Bible Reading Plan.app */,
 				62E012182D63A8BE0078DD7F /* Bible Reading PlanTests.xctest */,
 				62E012222D63A8BE0078DD7F /* Bible Reading PlanUITests.xctest */,
-				62D89CB12D63C1AD005A19A4 /* Bible Reading Plan WidgetExtension.appex */,
+				62D89CD12D63C51B005A19A4 /* Bible Reading Plan WidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -164,26 +164,26 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		62D89CB02D63C1AD005A19A4 /* Bible Reading Plan WidgetExtension */ = {
+		62D89CD02D63C51B005A19A4 /* Bible Reading Plan WidgetExtension */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 62D89CCC2D63C1AF005A19A4 /* Build configuration list for PBXNativeTarget "Bible Reading Plan WidgetExtension" */;
+			buildConfigurationList = 62D89CE62D63C51C005A19A4 /* Build configuration list for PBXNativeTarget "Bible Reading Plan WidgetExtension" */;
 			buildPhases = (
-				62D89CAD2D63C1AD005A19A4 /* Sources */,
-				62D89CAE2D63C1AD005A19A4 /* Frameworks */,
-				62D89CAF2D63C1AD005A19A4 /* Resources */,
+				62D89CCD2D63C51B005A19A4 /* Sources */,
+				62D89CCE2D63C51B005A19A4 /* Frameworks */,
+				62D89CCF2D63C51B005A19A4 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				62D89CB72D63C1AE005A19A4 /* Bible Reading Plan Widget */,
+				62D89CD42D63C51B005A19A4 /* Bible Reading Plan Widget */,
 			);
 			name = "Bible Reading Plan WidgetExtension";
 			packageProductDependencies = (
 			);
 			productName = "Bible Reading Plan WidgetExtension";
-			productReference = 62D89CB12D63C1AD005A19A4 /* Bible Reading Plan WidgetExtension.appex */;
+			productReference = 62D89CD12D63C51B005A19A4 /* Bible Reading Plan WidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		62E012072D63A8BC0078DD7F /* Bible Reading Plan */ = {
@@ -198,7 +198,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				62D89CC62D63C1AF005A19A4 /* PBXTargetDependency */,
+				62D89CE32D63C51C005A19A4 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				62E0120A2D63A8BC0078DD7F /* Bible Reading Plan */,
@@ -266,7 +266,7 @@
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
-					62D89CB02D63C1AD005A19A4 = {
+					62D89CD02D63C51B005A19A4 = {
 						CreatedOnToolsVersion = 16.2;
 					};
 					62E012072D63A8BC0078DD7F = {
@@ -299,13 +299,13 @@
 				62E012072D63A8BC0078DD7F /* Bible Reading Plan */,
 				62E012172D63A8BE0078DD7F /* Bible Reading PlanTests */,
 				62E012212D63A8BE0078DD7F /* Bible Reading PlanUITests */,
-				62D89CB02D63C1AD005A19A4 /* Bible Reading Plan WidgetExtension */,
+				62D89CD02D63C51B005A19A4 /* Bible Reading Plan WidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		62D89CAF2D63C1AD005A19A4 /* Resources */ = {
+		62D89CCF2D63C51B005A19A4 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -336,7 +336,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		62D89CAD2D63C1AD005A19A4 /* Sources */ = {
+		62D89CCD2D63C51B005A19A4 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -367,10 +367,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		62D89CC62D63C1AF005A19A4 /* PBXTargetDependency */ = {
+		62D89CE32D63C51C005A19A4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 62D89CB02D63C1AD005A19A4 /* Bible Reading Plan WidgetExtension */;
-			targetProxy = 62D89CC52D63C1AF005A19A4 /* PBXContainerItemProxy */;
+			target = 62D89CD02D63C51B005A19A4 /* Bible Reading Plan WidgetExtension */;
+			targetProxy = 62D89CE22D63C51C005A19A4 /* PBXContainerItemProxy */;
 		};
 		62E0121A2D63A8BE0078DD7F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -385,7 +385,7 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		62D89CC92D63C1AF005A19A4 /* Debug */ = {
+		62D89CE72D63C51C005A19A4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -413,7 +413,7 @@
 			};
 			name = Debug;
 		};
-		62D89CCA2D63C1AF005A19A4 /* Release */ = {
+		62D89CE82D63C51C005A19A4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -695,11 +695,11 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		62D89CCC2D63C1AF005A19A4 /* Build configuration list for PBXNativeTarget "Bible Reading Plan WidgetExtension" */ = {
+		62D89CE62D63C51C005A19A4 /* Build configuration list for PBXNativeTarget "Bible Reading Plan WidgetExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				62D89CC92D63C1AF005A19A4 /* Debug */,
-				62D89CCA2D63C1AF005A19A4 /* Release */,
+				62D89CE72D63C51C005A19A4 /* Debug */,
+				62D89CE82D63C51C005A19A4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
