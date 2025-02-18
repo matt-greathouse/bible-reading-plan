@@ -47,6 +47,16 @@ struct ContentView: View {
                         .font(.title)
                     Text("\(plan.days[currentDay].book) \(plan.days[currentDay].startChapter)-\(plan.days[currentDay].endChapter)")
                         .font(.largeTitle)
+                    Button(action: {
+                                openYouVersionURL(book: plan.days[currentDay].book, chapter: plan.days[currentDay].startChapter)
+                            }) {
+                                Text("Open in Bible App")
+                                    .font(.headline)
+                                    .padding()
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(8)
+                            }
                 } else {
                     Text("Select a Reading Plan")
                         .font(.title)
@@ -64,7 +74,18 @@ struct ContentView: View {
             }
         }
     }
-}
+    }
+
+    // Function to open YouVersion URL
+    private func openYouVersionURL(book: String, chapter: Int) {
+        let queryString = "\(book) \(chapter)"
+        let encodedQueryString = queryString.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? queryString
+        // Construct the URL
+        if let url = URL(string: "youversion://search/bible?query=\(encodedQueryString)") {
+            // Open the URL
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }
+    }
 
 #Preview {
     ContentView()
