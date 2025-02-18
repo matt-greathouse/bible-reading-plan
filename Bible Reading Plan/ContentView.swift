@@ -8,13 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var selectedPlan: ReadingPlan? {
-        didSet {
-            if let plan = selectedPlan {
-                UserDefaults.standard.set(plan.name, forKey: "selectedPlanName")
-            }
-        }
-    }
+    @State private var selectedPlan: ReadingPlan?
     
     func loadReadingPlans() {
         if let url = Bundle.main.url(forResource: "ReadingPlans", withExtension: "json"),
@@ -92,7 +86,13 @@ struct ContentView: View {
 }
 struct ReadingPlanSelectionView: View {
     @Binding var readingPlans: [ReadingPlan]
-    @Binding var selectedPlan: ReadingPlan?
+    @Binding var selectedPlan: ReadingPlan? {
+        didSet {
+            if let plan = selectedPlan {
+                UserDefaults.standard.set(plan.name, forKey: "selectedPlanName")
+            }
+        }
+    }
     @Binding var currentDay: Int
 
     var body: some View {
@@ -111,8 +111,8 @@ struct ReadingPlanSelectionView: View {
                         }
                     }
                     .pickerStyle(WheelPickerStyle())
-                    .onChange(of: currentDay) { newDay in
-                        UserDefaults.standard.set(newDay, forKey: "currentDay")
+                    .onChange(of: currentDay) {
+                        UserDefaults.standard.set(currentDay, forKey: "currentDay")
                     }
                 }
             }
