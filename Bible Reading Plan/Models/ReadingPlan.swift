@@ -15,4 +15,8 @@ struct Day: Codable {
     let book: String
     let startChapter: Int
     let endChapter: Int
+    func toString() -> String {
+        let bookName = osisToUserFriendlyNames[book] ?? book
+        return "\(bookName) \(startChapter)-\(endChapter)"
+    }
 }

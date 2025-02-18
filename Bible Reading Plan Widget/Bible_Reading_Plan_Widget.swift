@@ -9,23 +9,35 @@ import WidgetKit
 import SwiftUI
 
 
+
 struct SimpleEntry: TimelineEntry {
     let date: Date
     let configuration: ConfigurationAppIntent
 }
 
 struct Bible_Reading_Plan_WidgetEntryView : View {
+    @AppStorage("savedPlanName", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var savedPlanName: String = ""
+    @AppStorage("savedDay", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var savedDay: Int = 0
+    
     var body: some View {
-        let currentBook = UserDefaults.standard.string(forKey: "currentBook") ?? "No Book"
-        let currentChapterRange = UserDefaults.standard.string(forKey: "currentChapterRange") ?? "No Chapter"
-
-        VStack {
-            Text("Today's Reading")
-                .font(.headline)
-            Text("\(currentBook) \(currentChapterRange)")
-                .font(.subheadline)
+        let readingPlans = ReadingPlanService.shared.loadReadingPlans()
+        
+        if let plan = readingPlans.first(where: { $0.name == savedPlanName }), savedDay < plan.days.count {
+            let day = plan.days[savedDay]
+            VStack {
+                Text("Today's Reading")
+                    .font(.headline)
+                Text("\(day.book) \(day.startChapter)-\(day.endChapter)")
+                    .font(.subheadline)
+            }
+            .containerBackground(Color.clear, for: .widget)
+        } else {
+            VStack {
+                Text("No Reading Plan Selected")
+                    .font(.headline)
+            }
+            .containerBackground(Color.clear, for: .widget)
         }
-        .containerBackground(Color.clear, for: .widget)
     }
 }
 

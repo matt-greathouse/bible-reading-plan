@@ -8,41 +8,26 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var selectedPlan: ReadingPlan?
+    @AppStorage("savedPlanName", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var savedPlanName: String = ""
+    @AppStorage("savedDay", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var savedDay: Int = 0
+    
+    @State private var readingPlans: [ReadingPlan] = []
     
     func loadReadingPlans() {
-        if let url = Bundle.main.url(forResource: "ReadingPlans", withExtension: "json"),
-           let data = try? Data(contentsOf: url),
-           let plans = try? JSONDecoder().decode([ReadingPlan].self, from: data) {
-            readingPlans = plans
-        }
+        readingPlans = ReadingPlanService.shared.loadReadingPlans()
     }
-
-    func loadSavedState() {
-        if let savedPlanName = UserDefaults.standard.string(forKey: "selectedPlanName"),
-           let savedDay = UserDefaults.standard.value(forKey: "currentDay") as? Int {
-            currentDay = savedDay
-            selectedPlan = readingPlans.first(where: { $0.name == savedPlanName })
-        }
-    }
-    
-    @State private var currentDay: Int = 0 {
-        didSet {
-            UserDefaults.standard.set(currentDay, forKey: "currentDay")
-        }
-    }
-    @State private var readingPlans: [ReadingPlan] = []
 
     var body: some View {
         NavigationView {
             VStack {
-                if let plan = selectedPlan, currentDay < plan.days.count {
+                let selectedPlan = readingPlans.first(where: { $0.name == savedPlanName })
+                if let plan = selectedPlan, savedDay < plan.days.count {
                     Text("Today's Reading")
                         .font(.title)
-                    Text("\(plan.days[currentDay].book) \(plan.days[currentDay].startChapter)-\(plan.days[currentDay].endChapter)")
+                    Text("\(plan.days[savedDay].toString())")
                         .font(.largeTitle)
                     Button(action: {
-                                openYouVersionURL(book: plan.days[currentDay].book, chapter: plan.days[currentDay].startChapter)
+                                openYouVersionURL(book: plan.days[savedDay].book, chapter: plan.days[savedDay].startChapter)
                             }) {
                                 Text("Open in Bible App")
                                     .font(.headline)
@@ -57,11 +42,10 @@ struct ContentView: View {
                 }
             }
             .onAppear(perform: loadReadingPlans)
-            .onAppear(perform: loadSavedState)
             .navigationTitle("Bible Reading Plans")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    NavigationLink(destination: ReadingPlanSelectionView(readingPlans: $readingPlans, selectedPlan: $selectedPlan, currentDay: $currentDay)) {
+                    NavigationLink(destination: ReadingPlanSelectionView(readingPlans: $readingPlans, savedPlanName: $savedPlanName, savedDay: $savedDay)) {
                         Image(systemName: "ellipsis.circle")
                     }
                 }
@@ -72,10 +56,8 @@ struct ContentView: View {
 
     // Function to open YouVersion URL
     private func openYouVersionURL(book: String, chapter: Int) {
-        let queryString = "\(book) \(chapter)"
-        let encodedQueryString = queryString.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? queryString
         // Construct the URL
-        if let url = URL(string: "youversion://search/bible?query=\(encodedQueryString)") {
+        if let url = URL(string: "youversion://bible?reference=\(book).\(chapter)") {
             // Open the URL
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
@@ -86,37 +68,34 @@ struct ContentView: View {
 }
 struct ReadingPlanSelectionView: View {
     @Binding var readingPlans: [ReadingPlan]
-    @Binding var selectedPlan: ReadingPlan? {
-        didSet {
-            if let plan = selectedPlan {
-                UserDefaults.standard.set(plan.name, forKey: "selectedPlanName")
-            }
-        }
-    }
-    @Binding var currentDay: Int
+    @Binding var savedPlanName: String
+    @Binding var savedDay: Int
 
     var body: some View {
-        List(readingPlans, id: \.name) { plan in
-            VStack {
-                Button(action: {
-                    selectedPlan = plan
-                    currentDay = 0
-                }) {
-                    Text(plan.name)
-                }
-                if selectedPlan == plan {
-                    Picker("Select Day", selection: $currentDay) {
-                        ForEach(0..<plan.days.count, id: \.self) { dayIndex in
-                            Text("Day \(dayIndex + 1): \(plan.days[dayIndex].book) \(plan.days[dayIndex].startChapter)-\(plan.days[dayIndex].endChapter)")
-                        }
+        List {
+            ForEach(readingPlans, id: \.name) { plan in
+                VStack {
+                    Button(action: {
+                        savedPlanName = plan.name
+                        savedDay = 0 // Reset the day when a new plan is selected
+                    }) {
+                        Text(plan.name)
                     }
-                    .pickerStyle(WheelPickerStyle())
-                    .onChange(of: currentDay) {
-                        UserDefaults.standard.set(currentDay, forKey: "currentDay")
+                    if savedPlanName == plan.name {
+                        Picker("Select Day", selection: $savedDay) {
+                            ForEach(plan.days.indices, id: \.self) { dayIndex in
+                                dayLabel(for: plan.days[dayIndex], at: dayIndex)
+                            }
+                        }
+                        .pickerStyle(WheelPickerStyle())
                     }
                 }
             }
         }
         .navigationTitle("Select a Plan")
+    }
+
+    private func dayLabel(for day: Day, at index: Int) -> Text {
+        return Text("Day \(index + 1): \(day.toString())")
     }
 }

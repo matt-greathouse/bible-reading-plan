@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.bible.reading.plan.tracker</string>
+		<string>group.CY-D0A81E8A-6156-11E8-8B08-DF8E5D9E8DF9.com.cydia.Extender</string>
+	</array>
+</dict>
+</plist>
