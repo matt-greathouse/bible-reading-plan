@@ -9,7 +9,7 @@ import SwiftUI
 
 @main
 struct Bible_Reading_PlanApp: App {
-    @AppStorage("lastCheckedDate", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var lastCheckedDate: Date?
+    @AppStorage("lastCheckedDate", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var lastCheckedDate: Date = Date()
     @AppStorage("savedDay", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var savedDay: Int = 0
 
     var body: some Scene {
@@ -24,11 +24,9 @@ struct Bible_Reading_PlanApp: App {
     func setupDailyCheck() {
         let currentDate = Date()
         let calendar = Calendar.current
-
-        if let lastDate = lastCheckedDate {
-            if !calendar.isDateInToday(lastDate) {
-                savedDay += 1
-            }
+        
+        if !calendar.isDateInToday(lastCheckedDate) {
+            savedDay += 1
         }
         lastCheckedDate = currentDate
     }

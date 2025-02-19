@@ -54,6 +54,19 @@ struct Bible_Reading_Plan_Widget: Widget {
 }
 
 struct Provider: TimelineProvider {
+    @AppStorage("lastCheckedDate", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var lastCheckedDate: Date = Date()
+    @AppStorage("savedDay", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var savedDay: Int = 0
+    
+    func performDailyCheck() {
+        let currentDate = Date()
+        let calendar = Calendar.current
+        
+        if !calendar.isDateInToday(lastCheckedDate) {
+            savedDay += 1
+        }
+        lastCheckedDate = currentDate
+    }
+    
     func placeholder(in context: Context) -> SimpleEntry {
         SimpleEntry(date: Date(), configuration: ConfigurationAppIntent())
     }
@@ -64,6 +77,7 @@ struct Provider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<SimpleEntry>) -> ()) {
+        performDailyCheck()
         let currentDate = Date()
         let entry = SimpleEntry(date: currentDate, configuration: ConfigurationAppIntent())
         
