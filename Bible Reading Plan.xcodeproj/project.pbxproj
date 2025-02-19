@@ -57,7 +57,6 @@
 		62E012082D63A8BC0078DD7F /* Bible Reading Plan.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Bible Reading Plan.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		62E012182D63A8BE0078DD7F /* Bible Reading PlanTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Bible Reading PlanTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		62E012222D63A8BE0078DD7F /* Bible Reading PlanUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Bible Reading PlanUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		62F8FA3E2D6500780028619B /* Bible Reading Plan WidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Bible Reading Plan WidgetExtension.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -73,6 +72,7 @@
 			membershipExceptions = (
 				Models/ReadingPlan.swift,
 				Resources/BookMap.swift,
+				Resources/ReadingPlans.json,
 				Services/ReadingPlanService.swift,
 			);
 			target = 62D89CD02D63C51B005A19A4 /* Bible Reading Plan WidgetExtension */;
@@ -154,7 +154,6 @@
 		62E011FF2D63A8BC0078DD7F = {
 			isa = PBXGroup;
 			children = (
-				62F8FA3E2D6500780028619B /* Bible Reading Plan WidgetExtension.entitlements */,
 				62E0120A2D63A8BC0078DD7F /* Bible Reading Plan */,
 				62E0121B2D63A8BE0078DD7F /* Bible Reading PlanTests */,
 				62E012252D63A8BE0078DD7F /* Bible Reading PlanUITests */,
@@ -418,8 +417,8 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.5;
-				PRODUCT_BUNDLE_IDENTIFIER = "mattgreat.house.Bible-Reading-Plan.Bible-Reading-Plan-Widget";
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "mattgreat.house.Bible-Reading-Plan.Widget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -447,8 +446,8 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.5;
-				PRODUCT_BUNDLE_IDENTIFIER = "mattgreat.house.Bible-Reading-Plan.Bible-Reading-Plan-Widget";
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "mattgreat.house.Bible-Reading-Plan.Widget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -599,7 +598,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "mattgreat.house.Bible-Reading-Plan";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -631,7 +630,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "mattgreat.house.Bible-Reading-Plan";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

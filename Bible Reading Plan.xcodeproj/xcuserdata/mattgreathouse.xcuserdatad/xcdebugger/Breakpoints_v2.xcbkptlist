@@ -56,7 +56,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "65F2C8EF-EDE1-48D4-81D2-0940FECCF2AC"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Bible Reading Plan Widget/Bible_Reading_Plan_Widget.swift"
@@ -66,57 +66,13 @@
             endingLineNumber = "25"
             landmarkName = "body"
             landmarkType = "24">
-            <Locations>
-               <Location
-                  uuid = "65F2C8EF-EDE1-48D4-81D2-0940FECCF2AC - 7269d24f459ad52"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Bible_Reading_Plan_WidgetExtension.Bible_Reading_Plan_WidgetEntryView.body.getter : some"
-                  moduleName = "Bible Reading Plan WidgetExtension.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/mattgreathouse/git/Bible%20Reading%20Plan/Bible%20Reading%20Plan%20Widget/Bible_Reading_Plan_Widget.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "25"
-                  endingLineNumber = "25">
-               </Location>
-               <Location
-                  uuid = "65F2C8EF-EDE1-48D4-81D2-0940FECCF2AC - 7269d24f459ad52"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Bible_Reading_Plan_WidgetExtension.Bible_Reading_Plan_WidgetEntryView.body.getter : some"
-                  moduleName = "Bible Reading Plan WidgetExtension.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/mattgreathouse/git/Bible%20Reading%20Plan/Bible%20Reading%20Plan%20Widget/Bible_Reading_Plan_Widget.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "25"
-                  endingLineNumber = "25">
-               </Location>
-               <Location
-                  uuid = "65F2C8EF-EDE1-48D4-81D2-0940FECCF2AC - cdf1fcf2c7cf869d"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Bible_Reading_Plan_WidgetExtension.ReadingPlan) -&gt; Swift.Bool in Bible_Reading_Plan_WidgetExtension.Bible_Reading_Plan_WidgetEntryView.body.getter : some"
-                  moduleName = "Bible Reading Plan WidgetExtension.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/mattgreathouse/git/Bible%20Reading%20Plan/Bible%20Reading%20Plan%20Widget/Bible_Reading_Plan_Widget.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "25"
-                  endingLineNumber = "25">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "D59A4432-0A39-43A5-B306-10C069A51379"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Bible Reading Plan/ContentView.swift"
@@ -142,36 +98,6 @@
             endingLineNumber = "24"
             landmarkName = "body"
             landmarkType = "24">
-            <Locations>
-               <Location
-                  uuid = "E3A07B1E-5385-44D3-B344-6ECFA99B7CD5 - 82f6d246fbe74494"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; SwiftUI._ConditionalContent&lt;SwiftUI.TupleView&lt;(SwiftUI.Text, SwiftUI.Text, SwiftUI.Button&lt;&lt;&lt;opaque return type of SwiftUI.View.cornerRadius(_: CoreGraphics.CGFloat, antialiased: Swift.Bool) -&gt; some&gt;&gt;.0&gt;)&gt;, SwiftUI.Text&gt; in closure #1 () -&gt; &lt;&lt;opaque return type of SwiftUI.View.toolbar&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.ToolbarContent&gt;(content: () -&gt; &#x3c4;_1_0) -&gt; some&gt;&gt;.0 in Bible_Reading_Plan.ContentView.body.getter : some"
-                  moduleName = "Bible Reading Plan.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/mattgreathouse/git/Bible%20Reading%20Plan/Bible%20Reading%20Plan/ContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "24"
-                  endingLineNumber = "24">
-               </Location>
-               <Location
-                  uuid = "E3A07B1E-5385-44D3-B344-6ECFA99B7CD5 - 82f6d246fbe74494"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; SwiftUI._ConditionalContent&lt;SwiftUI.TupleView&lt;(SwiftUI.Text, SwiftUI.Text, SwiftUI.Button&lt;&lt;&lt;opaque return type of SwiftUI.View.cornerRadius(_: CoreGraphics.CGFloat, antialiased: Swift.Bool) -&gt; some&gt;&gt;.0&gt;)&gt;, SwiftUI.Text&gt; in closure #1 () -&gt; &lt;&lt;opaque return type of SwiftUI.View.toolbar&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.ToolbarContent&gt;(content: () -&gt; &#x3c4;_1_0) -&gt; some&gt;&gt;.0 in Bible_Reading_Plan.ContentView.body.getter : some"
-                  moduleName = "Bible Reading Plan.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/mattgreathouse/git/Bible%20Reading%20Plan/Bible%20Reading%20Plan/ContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "24"
-                  endingLineNumber = "24">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

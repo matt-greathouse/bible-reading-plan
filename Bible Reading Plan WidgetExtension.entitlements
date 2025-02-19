@@ -5,7 +5,6 @@
 	<key>com.apple.security.application-groups</key>
 	<array>
 		<string>group.bible.reading.plan.tracker</string>
-		<string>group.CY-D0A81E8A-6156-11E8-8B08-DF8E5D9E8DF9.com.cydia.Extender</string>
 	</array>
 </dict>
 </plist>

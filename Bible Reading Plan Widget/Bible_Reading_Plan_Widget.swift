@@ -26,9 +26,9 @@ struct Bible_Reading_Plan_WidgetEntryView : View {
             let day = plan.days[savedDay]
             VStack {
                 Text("Today's Reading")
-                    .font(.headline)
-                Text("\(day.book) \(day.startChapter)-\(day.endChapter)")
                     .font(.subheadline)
+                Text(day.toString())
+                    .font(.headline)
             }
             .containerBackground(Color.clear, for: .widget)
         } else {
