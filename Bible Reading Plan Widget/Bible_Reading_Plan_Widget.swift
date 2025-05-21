@@ -16,13 +16,13 @@ struct SimpleEntry: TimelineEntry {
 }
 
 struct Bible_Reading_Plan_WidgetEntryView : View {
-    @AppStorage("savedPlanName", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var savedPlanName: String = ""
+    @AppStorage("savedPlan", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var savedPlan: Int = 0
     @AppStorage("savedDay", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var savedDay: Int = 0
     
     var body: some View {
         let readingPlans = ReadingPlanService.shared.loadReadingPlans()
         
-        if let plan = readingPlans.first(where: { $0.name == savedPlanName }), savedDay < plan.days.count {
+        if let plan = readingPlans.first(where: { $0.id == savedPlan }), savedDay < plan.days.count {
             let day = plan.days[savedDay]
             VStack {
                 Text("Today's Reading")

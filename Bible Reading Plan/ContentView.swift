@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @AppStorage("savedPlanName", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var savedPlanName: String = ""
+    @AppStorage("savedPlan", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var savedPlan: Int = 0
     @AppStorage("savedDay", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var savedDay: Int = 0
     
     @State private var readingPlans: [ReadingPlan] = []
@@ -20,7 +20,7 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             VStack {
-                let selectedPlan = readingPlans.first(where: { $0.name == savedPlanName })
+                let selectedPlan = readingPlans.first(where: { $0.id == savedPlan })
                 if let plan = selectedPlan, savedDay < plan.days.count {
                     Text("Today's Reading")
                         .font(.title)
@@ -45,7 +45,7 @@ struct ContentView: View {
             .navigationTitle("Bible Reading Plans")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    NavigationLink(destination: ReadingPlanSelectionView(readingPlans: $readingPlans, savedPlanName: $savedPlanName, savedDay: $savedDay)) {
+                    NavigationLink(destination: ReadingPlanSelectionView(readingPlans: $readingPlans, savedPlan: $savedPlan, savedDay: $savedDay)) {
                         Image(systemName: "ellipsis.circle")
                     }
                 }
@@ -68,7 +68,7 @@ struct ContentView: View {
 }
 struct ReadingPlanSelectionView: View {
     @Binding var readingPlans: [ReadingPlan]
-    @Binding var savedPlanName: String
+    @Binding var savedPlan: Int
     @Binding var savedDay: Int
 
     var body: some View {
@@ -76,12 +76,12 @@ struct ReadingPlanSelectionView: View {
             ForEach(readingPlans, id: \.name) { plan in
                 VStack {
                     Button(action: {
-                        savedPlanName = plan.name
+                        savedPlan = plan.id
                         savedDay = 0 // Reset the day when a new plan is selected
                     }) {
                         Text(plan.name)
                     }
-                    if savedPlanName == plan.name {
+                    if savedPlan == plan.id {
                         Picker("Select Day", selection: $savedDay) {
                             ForEach(plan.days.indices, id: \.self) { dayIndex in
                                 dayLabel(for: plan.days[dayIndex], at: dayIndex)

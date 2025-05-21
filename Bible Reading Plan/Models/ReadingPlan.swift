@@ -1,13 +1,14 @@
 import Foundation
 
 struct ReadingPlan: Codable {
+    let id: Int
     let name: String
     let days: [Day]
 }
 
 extension ReadingPlan: Equatable {
     static func == (lhs: ReadingPlan, rhs: ReadingPlan) -> Bool {
-        return lhs.name == rhs.name
+        return lhs.id == rhs.id
     }
 }
 

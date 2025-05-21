@@ -1,6 +1,7 @@
 [
   {
-    "name": "Plan 1",
+    "id": 1,
+    "name": "Weekly Variety Plan",
     "days": [
       {
         "book": "ROM",
@@ -1825,17 +1826,1833 @@
     ]
   },
   {
-    "name": "Plan 2",
+    "id": 2,
+    "name": "Basic Reading Plan",
     "days": [
       {
+        "book": "GEN",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "GEN",
+        "startChapter": 5,
+        "endChapter": 8
+      },
+      {
+        "book": "GEN",
+        "startChapter": 9,
+        "endChapter": 12
+      },
+      {
+        "book": "GEN",
+        "startChapter": 13,
+        "endChapter": 16
+      },
+      {
+        "book": "GEN",
+        "startChapter": 17,
+        "endChapter": 20
+      },
+      {
+        "book": "GEN",
+        "startChapter": 21,
+        "endChapter": 24
+      },
+      {
+        "book": "GEN",
+        "startChapter": 25,
+        "endChapter": 28
+      },
+      {
+        "book": "GEN",
+        "startChapter": 29,
+        "endChapter": 32
+      },
+      {
+        "book": "GEN",
+        "startChapter": 33,
+        "endChapter": 35
+      },
+      {
+        "book": "GEN",
+        "startChapter": 36,
+        "endChapter": 38
+      },
+      {
+        "book": "GEN",
+        "startChapter": 39,
+        "endChapter": 41
+      },
+      {
+        "book": "GEN",
+        "startChapter": 42,
+        "endChapter": 44
+      },
+      {
+        "book": "GEN",
+        "startChapter": 45,
+        "endChapter": 47
+      },
+      {
+        "book": "GEN",
+        "startChapter": 48,
+        "endChapter": 50
+      },
+      {
         "book": "EXO",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "EXO",
+        "startChapter": 5,
+        "endChapter": 8
+      },
+      {
+        "book": "EXO",
+        "startChapter": 9,
+        "endChapter": 12
+      },
+      {
+        "book": "EXO",
+        "startChapter": 13,
+        "endChapter": 16
+      },
+      {
+        "book": "EXO",
+        "startChapter": 17,
+        "endChapter": 19
+      },
+      {
+        "book": "EXO",
+        "startChapter": 20,
+        "endChapter": 22
+      },
+      {
+        "book": "EXO",
+        "startChapter": 23,
+        "endChapter": 25
+      },
+      {
+        "book": "EXO",
+        "startChapter": 26,
+        "endChapter": 28
+      },
+      {
+        "book": "EXO",
+        "startChapter": 29,
+        "endChapter": 31
+      },
+      {
+        "book": "EXO",
+        "startChapter": 32,
+        "endChapter": 34
+      },
+      {
+        "book": "EXO",
+        "startChapter": 35,
+        "endChapter": 37
+      },
+      {
+        "book": "EXO",
+        "startChapter": 38,
+        "endChapter": 40
+      },
+      {
+        "book": "LEV",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "LEV",
+        "startChapter": 5,
+        "endChapter": 8
+      },
+      {
+        "book": "LEV",
+        "startChapter": 9,
+        "endChapter": 12
+      },
+      {
+        "book": "LEV",
+        "startChapter": 13,
+        "endChapter": 15
+      },
+      {
+        "book": "LEV",
+        "startChapter": 16,
+        "endChapter": 18
+      },
+      {
+        "book": "LEV",
+        "startChapter": 19,
+        "endChapter": 21
+      },
+      {
+        "book": "LEV",
+        "startChapter": 22,
+        "endChapter": 24
+      },
+      {
+        "book": "LEV",
+        "startChapter": 25,
+        "endChapter": 27
+      },
+      {
+        "book": "NUM",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "NUM",
+        "startChapter": 5,
+        "endChapter": 8
+      },
+      {
+        "book": "NUM",
+        "startChapter": 9,
+        "endChapter": 12
+      },
+      {
+        "book": "NUM",
+        "startChapter": 13,
+        "endChapter": 15
+      },
+      {
+        "book": "NUM",
+        "startChapter": 16,
+        "endChapter": 18
+      },
+      {
+        "book": "NUM",
+        "startChapter": 19,
+        "endChapter": 21
+      },
+      {
+        "book": "NUM",
+        "startChapter": 22,
+        "endChapter": 24
+      },
+      {
+        "book": "NUM",
+        "startChapter": 25,
+        "endChapter": 27
+      },
+      {
+        "book": "NUM",
+        "startChapter": 28,
+        "endChapter": 30
+      },
+      {
+        "book": "NUM",
+        "startChapter": 31,
+        "endChapter": 33
+      },
+      {
+        "book": "NUM",
+        "startChapter": 34,
+        "endChapter": 36
+      },
+      {
+        "book": "DEU",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "DEU",
+        "startChapter": 5,
+        "endChapter": 8
+      },
+      {
+        "book": "DEU",
+        "startChapter": 9,
+        "endChapter": 12
+      },
+      {
+        "book": "DEU",
+        "startChapter": 13,
+        "endChapter": 16
+      },
+      {
+        "book": "DEU",
+        "startChapter": 17,
+        "endChapter": 19
+      },
+      {
+        "book": "DEU",
+        "startChapter": 20,
+        "endChapter": 22
+      },
+      {
+        "book": "DEU",
+        "startChapter": 23,
+        "endChapter": 25
+      },
+      {
+        "book": "DEU",
+        "startChapter": 26,
+        "endChapter": 28
+      },
+      {
+        "book": "DEU",
+        "startChapter": 29,
+        "endChapter": 31
+      },
+      {
+        "book": "DEU",
+        "startChapter": 32,
+        "endChapter": 34
+      },
+      {
+        "book": "JOS",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "JOS",
+        "startChapter": 5,
+        "endChapter": 8
+      },
+      {
+        "book": "JOS",
+        "startChapter": 9,
+        "endChapter": 12
+      },
+      {
+        "book": "JOS",
+        "startChapter": 13,
+        "endChapter": 15
+      },
+      {
+        "book": "JOS",
+        "startChapter": 16,
+        "endChapter": 18
+      },
+      {
+        "book": "JOS",
+        "startChapter": 19,
+        "endChapter": 21
+      },
+      {
+        "book": "JOS",
+        "startChapter": 22,
+        "endChapter": 24
+      },
+      {
+        "book": "JDG",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "JDG",
+        "startChapter": 5,
+        "endChapter": 8
+      },
+      {
+        "book": "JDG",
+        "startChapter": 9,
+        "endChapter": 12
+      },
+      {
+        "book": "JDG",
+        "startChapter": 13,
+        "endChapter": 15
+      },
+      {
+        "book": "JDG",
+        "startChapter": 16,
+        "endChapter": 18
+      },
+      {
+        "book": "JDG",
+        "startChapter": 19,
+        "endChapter": 21
+      },
+      {
+        "book": "RUT",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "1SA",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "1SA",
+        "startChapter": 5,
+        "endChapter": 7
+      },
+      {
+        "book": "1SA",
+        "startChapter": 8,
+        "endChapter": 10
+      },
+      {
+        "book": "1SA",
+        "startChapter": 11,
+        "endChapter": 13
+      },
+      {
+        "book": "1SA",
+        "startChapter": 14,
+        "endChapter": 16
+      },
+      {
+        "book": "1SA",
+        "startChapter": 17,
+        "endChapter": 19
+      },
+      {
+        "book": "1SA",
+        "startChapter": 20,
+        "endChapter": 22
+      },
+      {
+        "book": "1SA",
+        "startChapter": 23,
+        "endChapter": 25
+      },
+      {
+        "book": "1SA",
+        "startChapter": 26,
+        "endChapter": 28
+      },
+      {
+        "book": "1SA",
+        "startChapter": 29,
+        "endChapter": 31
+      },
+      {
+        "book": "2SA",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "2SA",
+        "startChapter": 5,
+        "endChapter": 8
+      },
+      {
+        "book": "2SA",
+        "startChapter": 9,
+        "endChapter": 12
+      },
+      {
+        "book": "2SA",
+        "startChapter": 13,
+        "endChapter": 15
+      },
+      {
+        "book": "2SA",
+        "startChapter": 16,
+        "endChapter": 18
+      },
+      {
+        "book": "2SA",
+        "startChapter": 19,
+        "endChapter": 21
+      },
+      {
+        "book": "2SA",
+        "startChapter": 22,
+        "endChapter": 24
+      },
+      {
+        "book": "1KI",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "1KI",
+        "startChapter": 5,
+        "endChapter": 7
+      },
+      {
+        "book": "1KI",
+        "startChapter": 8,
+        "endChapter": 10
+      },
+      {
+        "book": "1KI",
+        "startChapter": 11,
+        "endChapter": 13
+      },
+      {
+        "book": "1KI",
+        "startChapter": 14,
+        "endChapter": 16
+      },
+      {
+        "book": "1KI",
+        "startChapter": 17,
+        "endChapter": 19
+      },
+      {
+        "book": "1KI",
+        "startChapter": 20,
+        "endChapter": 22
+      },
+      {
+        "book": "2KI",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "2KI",
+        "startChapter": 5,
+        "endChapter": 7
+      },
+      {
+        "book": "2KI",
+        "startChapter": 8,
+        "endChapter": 10
+      },
+      {
+        "book": "2KI",
+        "startChapter": 11,
+        "endChapter": 13
+      },
+      {
+        "book": "2KI",
+        "startChapter": 14,
+        "endChapter": 16
+      },
+      {
+        "book": "2KI",
+        "startChapter": 17,
+        "endChapter": 19
+      },
+      {
+        "book": "2KI",
+        "startChapter": 20,
+        "endChapter": 22
+      },
+      {
+        "book": "2KI",
+        "startChapter": 23,
+        "endChapter": 25
+      },
+      {
+        "book": "1CH",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "1CH",
+        "startChapter": 5,
+        "endChapter": 8
+      },
+      {
+        "book": "1CH",
+        "startChapter": 9,
+        "endChapter": 11
+      },
+      {
+        "book": "1CH",
+        "startChapter": 12,
+        "endChapter": 14
+      },
+      {
+        "book": "1CH",
+        "startChapter": 15,
+        "endChapter": 17
+      },
+      {
+        "book": "1CH",
+        "startChapter": 18,
+        "endChapter": 20
+      },
+      {
+        "book": "1CH",
+        "startChapter": 21,
+        "endChapter": 23
+      },
+      {
+        "book": "1CH",
+        "startChapter": 24,
+        "endChapter": 26
+      },
+      {
+        "book": "1CH",
+        "startChapter": 27,
+        "endChapter": 29
+      },
+      {
+        "book": "2CH",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "2CH",
+        "startChapter": 5,
+        "endChapter": 8
+      },
+      {
+        "book": "2CH",
+        "startChapter": 9,
+        "endChapter": 12
+      },
+      {
+        "book": "2CH",
+        "startChapter": 13,
+        "endChapter": 15
+      },
+      {
+        "book": "2CH",
+        "startChapter": 16,
+        "endChapter": 18
+      },
+      {
+        "book": "2CH",
+        "startChapter": 19,
+        "endChapter": 21
+      },
+      {
+        "book": "2CH",
+        "startChapter": 22,
+        "endChapter": 24
+      },
+      {
+        "book": "2CH",
+        "startChapter": 25,
+        "endChapter": 27
+      },
+      {
+        "book": "2CH",
+        "startChapter": 28,
+        "endChapter": 30
+      },
+      {
+        "book": "2CH",
+        "startChapter": 31,
+        "endChapter": 33
+      },
+      {
+        "book": "2CH",
+        "startChapter": 34,
+        "endChapter": 36
+      },
+      {
+        "book": "EZR",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "EZR",
+        "startChapter": 5,
+        "endChapter": 7
+      },
+      {
+        "book": "EZR",
+        "startChapter": 8,
+        "endChapter": 10
+      },
+      {
+        "book": "NEH",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "NEH",
+        "startChapter": 5,
+        "endChapter": 7
+      },
+      {
+        "book": "NEH",
+        "startChapter": 8,
+        "endChapter": 10
+      },
+      {
+        "book": "NEH",
+        "startChapter": 11,
+        "endChapter": 13
+      },
+      {
+        "book": "EST",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "EST",
+        "startChapter": 5,
+        "endChapter": 7
+      },
+      {
+        "book": "EST",
+        "startChapter": 8,
+        "endChapter": 10
+      },
+      {
+        "book": "JOB",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "JOB",
+        "startChapter": 5,
+        "endChapter": 8
+      },
+      {
+        "book": "JOB",
+        "startChapter": 9,
+        "endChapter": 12
+      },
+      {
+        "book": "JOB",
+        "startChapter": 13,
+        "endChapter": 15
+      },
+      {
+        "book": "JOB",
+        "startChapter": 16,
+        "endChapter": 18
+      },
+      {
+        "book": "JOB",
+        "startChapter": 19,
+        "endChapter": 21
+      },
+      {
+        "book": "JOB",
+        "startChapter": 22,
+        "endChapter": 24
+      },
+      {
+        "book": "JOB",
+        "startChapter": 25,
+        "endChapter": 27
+      },
+      {
+        "book": "JOB",
+        "startChapter": 28,
+        "endChapter": 30
+      },
+      {
+        "book": "JOB",
+        "startChapter": 31,
+        "endChapter": 33
+      },
+      {
+        "book": "JOB",
+        "startChapter": 34,
+        "endChapter": 36
+      },
+      {
+        "book": "JOB",
+        "startChapter": 37,
+        "endChapter": 39
+      },
+      {
+        "book": "JOB",
+        "startChapter": 40,
+        "endChapter": 42
+      },
+      {
+        "book": "PSA",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "PSA",
+        "startChapter": 5,
+        "endChapter": 8
+      },
+      {
+        "book": "PSA",
+        "startChapter": 9,
+        "endChapter": 12
+      },
+      {
+        "book": "PSA",
+        "startChapter": 13,
+        "endChapter": 16
+      },
+      {
+        "book": "PSA",
+        "startChapter": 17,
+        "endChapter": 20
+      },
+      {
+        "book": "PSA",
+        "startChapter": 21,
+        "endChapter": 24
+      },
+      {
+        "book": "PSA",
+        "startChapter": 25,
+        "endChapter": 28
+      },
+      {
+        "book": "PSA",
+        "startChapter": 29,
+        "endChapter": 32
+      },
+      {
+        "book": "PSA",
+        "startChapter": 33,
+        "endChapter": 36
+      },
+      {
+        "book": "PSA",
+        "startChapter": 37,
+        "endChapter": 40
+      },
+      {
+        "book": "PSA",
+        "startChapter": 41,
+        "endChapter": 44
+      },
+      {
+        "book": "PSA",
+        "startChapter": 45,
+        "endChapter": 48
+      },
+      {
+        "book": "PSA",
+        "startChapter": 49,
+        "endChapter": 52
+      },
+      {
+        "book": "PSA",
+        "startChapter": 53,
+        "endChapter": 56
+      },
+      {
+        "book": "PSA",
+        "startChapter": 57,
+        "endChapter": 60
+      },
+      {
+        "book": "PSA",
+        "startChapter": 61,
+        "endChapter": 63
+      },
+      {
+        "book": "PSA",
+        "startChapter": 64,
+        "endChapter": 66
+      },
+      {
+        "book": "PSA",
+        "startChapter": 67,
+        "endChapter": 69
+      },
+      {
+        "book": "PSA",
+        "startChapter": 70,
+        "endChapter": 72
+      },
+      {
+        "book": "PSA",
+        "startChapter": 73,
+        "endChapter": 75
+      },
+      {
+        "book": "PSA",
+        "startChapter": 76,
+        "endChapter": 78
+      },
+      {
+        "book": "PSA",
+        "startChapter": 79,
+        "endChapter": 81
+      },
+      {
+        "book": "PSA",
+        "startChapter": 82,
+        "endChapter": 84
+      },
+      {
+        "book": "PSA",
+        "startChapter": 85,
+        "endChapter": 87
+      },
+      {
+        "book": "PSA",
+        "startChapter": 88,
+        "endChapter": 90
+      },
+      {
+        "book": "PSA",
+        "startChapter": 91,
+        "endChapter": 93
+      },
+      {
+        "book": "PSA",
+        "startChapter": 94,
+        "endChapter": 96
+      },
+      {
+        "book": "PSA",
+        "startChapter": 97,
+        "endChapter": 99
+      },
+      {
+        "book": "PSA",
+        "startChapter": 100,
+        "endChapter": 102
+      },
+      {
+        "book": "PSA",
+        "startChapter": 103,
+        "endChapter": 105
+      },
+      {
+        "book": "PSA",
+        "startChapter": 106,
+        "endChapter": 108
+      },
+      {
+        "book": "PSA",
+        "startChapter": 109,
+        "endChapter": 111
+      },
+      {
+        "book": "PSA",
+        "startChapter": 112,
+        "endChapter": 114
+      },
+      {
+        "book": "PSA",
+        "startChapter": 115,
+        "endChapter": 117
+      },
+      {
+        "book": "PSA",
+        "startChapter": 118,
+        "endChapter": 120
+      },
+      {
+        "book": "PSA",
+        "startChapter": 121,
+        "endChapter": 123
+      },
+      {
+        "book": "PSA",
+        "startChapter": 124,
+        "endChapter": 126
+      },
+      {
+        "book": "PSA",
+        "startChapter": 127,
+        "endChapter": 129
+      },
+      {
+        "book": "PSA",
+        "startChapter": 130,
+        "endChapter": 132
+      },
+      {
+        "book": "PSA",
+        "startChapter": 133,
+        "endChapter": 135
+      },
+      {
+        "book": "PSA",
+        "startChapter": 136,
+        "endChapter": 138
+      },
+      {
+        "book": "PSA",
+        "startChapter": 139,
+        "endChapter": 141
+      },
+      {
+        "book": "PSA",
+        "startChapter": 142,
+        "endChapter": 144
+      },
+      {
+        "book": "PSA",
+        "startChapter": 145,
+        "endChapter": 147
+      },
+      {
+        "book": "PSA",
+        "startChapter": 148,
+        "endChapter": 150
+      },
+      {
+        "book": "PRO",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "PRO",
+        "startChapter": 5,
+        "endChapter": 7
+      },
+      {
+        "book": "PRO",
+        "startChapter": 8,
+        "endChapter": 10
+      },
+      {
+        "book": "PRO",
+        "startChapter": 11,
+        "endChapter": 13
+      },
+      {
+        "book": "PRO",
+        "startChapter": 14,
+        "endChapter": 16
+      },
+      {
+        "book": "PRO",
+        "startChapter": 17,
+        "endChapter": 19
+      },
+      {
+        "book": "PRO",
+        "startChapter": 20,
+        "endChapter": 22
+      },
+      {
+        "book": "PRO",
+        "startChapter": 23,
+        "endChapter": 25
+      },
+      {
+        "book": "PRO",
+        "startChapter": 26,
+        "endChapter": 28
+      },
+      {
+        "book": "PRO",
+        "startChapter": 29,
+        "endChapter": 31
+      },
+      {
+        "book": "ECC",
+        "startChapter": 1,
+        "endChapter": 3
+      },
+      {
+        "book": "ECC",
+        "startChapter": 4,
+        "endChapter": 6
+      },
+      {
+        "book": "ECC",
+        "startChapter": 7,
+        "endChapter": 9
+      },
+      {
+        "book": "ECC",
+        "startChapter": 10,
+        "endChapter": 12
+      },
+      {
+        "book": "SNG",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "SNG",
+        "startChapter": 5,
+        "endChapter": 8
+      },
+      {
+        "book": "ISA",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "ISA",
+        "startChapter": 5,
+        "endChapter": 8
+      },
+      {
+        "book": "ISA",
+        "startChapter": 9,
+        "endChapter": 12
+      },
+      {
+        "book": "ISA",
+        "startChapter": 13,
+        "endChapter": 16
+      },
+      {
+        "book": "ISA",
+        "startChapter": 17,
+        "endChapter": 20
+      },
+      {
+        "book": "ISA",
+        "startChapter": 21,
+        "endChapter": 24
+      },
+      {
+        "book": "ISA",
+        "startChapter": 25,
+        "endChapter": 27
+      },
+      {
+        "book": "ISA",
+        "startChapter": 28,
+        "endChapter": 30
+      },
+      {
+        "book": "ISA",
+        "startChapter": 31,
+        "endChapter": 33
+      },
+      {
+        "book": "ISA",
+        "startChapter": 34,
+        "endChapter": 36
+      },
+      {
+        "book": "ISA",
+        "startChapter": 37,
+        "endChapter": 39
+      },
+      {
+        "book": "ISA",
+        "startChapter": 40,
+        "endChapter": 42
+      },
+      {
+        "book": "ISA",
+        "startChapter": 43,
+        "endChapter": 45
+      },
+      {
+        "book": "ISA",
+        "startChapter": 46,
+        "endChapter": 48
+      },
+      {
+        "book": "ISA",
+        "startChapter": 49,
+        "endChapter": 51
+      },
+      {
+        "book": "ISA",
+        "startChapter": 52,
+        "endChapter": 54
+      },
+      {
+        "book": "ISA",
+        "startChapter": 55,
+        "endChapter": 57
+      },
+      {
+        "book": "ISA",
+        "startChapter": 58,
+        "endChapter": 60
+      },
+      {
+        "book": "ISA",
+        "startChapter": 61,
+        "endChapter": 63
+      },
+      {
+        "book": "ISA",
+        "startChapter": 64,
+        "endChapter": 66
+      },
+      {
+        "book": "JER",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "JER",
+        "startChapter": 5,
+        "endChapter": 8
+      },
+      {
+        "book": "JER",
+        "startChapter": 9,
+        "endChapter": 12
+      },
+      {
+        "book": "JER",
+        "startChapter": 13,
+        "endChapter": 16
+      },
+      {
+        "book": "JER",
+        "startChapter": 17,
+        "endChapter": 20
+      },
+      {
+        "book": "JER",
+        "startChapter": 21,
+        "endChapter": 24
+      },
+      {
+        "book": "JER",
+        "startChapter": 25,
+        "endChapter": 28
+      },
+      {
+        "book": "JER",
+        "startChapter": 29,
+        "endChapter": 31
+      },
+      {
+        "book": "JER",
+        "startChapter": 32,
+        "endChapter": 34
+      },
+      {
+        "book": "JER",
+        "startChapter": 35,
+        "endChapter": 37
+      },
+      {
+        "book": "JER",
+        "startChapter": 38,
+        "endChapter": 40
+      },
+      {
+        "book": "JER",
+        "startChapter": 41,
+        "endChapter": 43
+      },
+      {
+        "book": "JER",
+        "startChapter": 44,
+        "endChapter": 46
+      },
+      {
+        "book": "JER",
+        "startChapter": 47,
+        "endChapter": 49
+      },
+      {
+        "book": "JER",
+        "startChapter": 50,
+        "endChapter": 52
+      },
+      {
+        "book": "LAM",
+        "startChapter": 1,
+        "endChapter": 3
+      },
+      {
+        "book": "LAM",
+        "startChapter": 4,
+        "endChapter": 5
+      },
+      {
+        "book": "EZK",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "EZK",
+        "startChapter": 5,
+        "endChapter": 8
+      },
+      {
+        "book": "EZK",
+        "startChapter": 9,
+        "endChapter": 12
+      },
+      {
+        "book": "EZK",
+        "startChapter": 13,
+        "endChapter": 16
+      },
+      {
+        "book": "EZK",
+        "startChapter": 17,
+        "endChapter": 20
+      },
+      {
+        "book": "EZK",
+        "startChapter": 21,
+        "endChapter": 24
+      },
+      {
+        "book": "EZK",
+        "startChapter": 25,
+        "endChapter": 27
+      },
+      {
+        "book": "EZK",
+        "startChapter": 28,
+        "endChapter": 30
+      },
+      {
+        "book": "EZK",
+        "startChapter": 31,
+        "endChapter": 33
+      },
+      {
+        "book": "EZK",
+        "startChapter": 34,
+        "endChapter": 36
+      },
+      {
+        "book": "EZK",
+        "startChapter": 37,
+        "endChapter": 39
+      },
+      {
+        "book": "EZK",
+        "startChapter": 40,
+        "endChapter": 42
+      },
+      {
+        "book": "EZK",
+        "startChapter": 43,
+        "endChapter": 45
+      },
+      {
+        "book": "EZK",
+        "startChapter": 46,
+        "endChapter": 48
+      },
+      {
+        "book": "DAN",
+        "startChapter": 1,
+        "endChapter": 3
+      },
+      {
+        "book": "DAN",
+        "startChapter": 4,
+        "endChapter": 6
+      },
+      {
+        "book": "DAN",
+        "startChapter": 7,
+        "endChapter": 9
+      },
+      {
+        "book": "DAN",
+        "startChapter": 10,
+        "endChapter": 12
+      },
+      {
+        "book": "HOS",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "HOS",
+        "startChapter": 5,
+        "endChapter": 8
+      },
+      {
+        "book": "HOS",
+        "startChapter": 9,
+        "endChapter": 11
+      },
+      {
+        "book": "HOS",
+        "startChapter": 12,
+        "endChapter": 14
+      },
+      {
+        "book": "JOL",
+        "startChapter": 1,
+        "endChapter": 3
+      },
+      {
+        "book": "AMO",
+        "startChapter": 1,
+        "endChapter": 3
+      },
+      {
+        "book": "AMO",
+        "startChapter": 4,
+        "endChapter": 6
+      },
+      {
+        "book": "AMO",
+        "startChapter": 7,
+        "endChapter": 9
+      },
+      {
+        "book": "OBA",
+        "startChapter": 1,
+        "endChapter": 1
+      },
+      {
+        "book": "JON",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "MIC",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "MIC",
+        "startChapter": 5,
+        "endChapter": 7
+      },
+      {
+        "book": "NAM",
+        "startChapter": 1,
+        "endChapter": 3
+      },
+      {
+        "book": "HAB",
+        "startChapter": 1,
+        "endChapter": 3
+      },
+      {
+        "book": "ZEP",
+        "startChapter": 1,
+        "endChapter": 3
+      },
+      {
+        "book": "HAG",
         "startChapter": 1,
         "endChapter": 2
       },
       {
-        "book": "EXO",
-        "startChapter": 3,
+        "book": "ZEC",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "ZEC",
+        "startChapter": 5,
+        "endChapter": 8
+      },
+      {
+        "book": "ZEC",
+        "startChapter": 9,
+        "endChapter": 11
+      },
+      {
+        "book": "ZEC",
+        "startChapter": 12,
+        "endChapter": 14
+      },
+      {
+        "book": "MAL",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "MAT",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "MAT",
+        "startChapter": 5,
+        "endChapter": 8
+      },
+      {
+        "book": "MAT",
+        "startChapter": 9,
+        "endChapter": 12
+      },
+      {
+        "book": "MAT",
+        "startChapter": 13,
+        "endChapter": 16
+      },
+      {
+        "book": "MAT",
+        "startChapter": 17,
+        "endChapter": 19
+      },
+      {
+        "book": "MAT",
+        "startChapter": 20,
+        "endChapter": 22
+      },
+      {
+        "book": "MAT",
+        "startChapter": 23,
+        "endChapter": 25
+      },
+      {
+        "book": "MAT",
+        "startChapter": 26,
+        "endChapter": 28
+      },
+      {
+        "book": "MRK",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "MRK",
+        "startChapter": 5,
+        "endChapter": 7
+      },
+      {
+        "book": "MRK",
+        "startChapter": 8,
+        "endChapter": 10
+      },
+      {
+        "book": "MRK",
+        "startChapter": 11,
+        "endChapter": 13
+      },
+      {
+        "book": "MRK",
+        "startChapter": 14,
+        "endChapter": 16
+      },
+      {
+        "book": "LUK",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "LUK",
+        "startChapter": 5,
+        "endChapter": 8
+      },
+      {
+        "book": "LUK",
+        "startChapter": 9,
+        "endChapter": 12
+      },
+      {
+        "book": "LUK",
+        "startChapter": 13,
+        "endChapter": 15
+      },
+      {
+        "book": "LUK",
+        "startChapter": 16,
+        "endChapter": 18
+      },
+      {
+        "book": "LUK",
+        "startChapter": 19,
+        "endChapter": 21
+      },
+      {
+        "book": "LUK",
+        "startChapter": 22,
+        "endChapter": 24
+      },
+      {
+        "book": "JHN",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "JHN",
+        "startChapter": 5,
+        "endChapter": 8
+      },
+      {
+        "book": "JHN",
+        "startChapter": 9,
+        "endChapter": 12
+      },
+      {
+        "book": "JHN",
+        "startChapter": 13,
+        "endChapter": 15
+      },
+      {
+        "book": "JHN",
+        "startChapter": 16,
+        "endChapter": 18
+      },
+      {
+        "book": "JHN",
+        "startChapter": 19,
+        "endChapter": 21
+      },
+      {
+        "book": "ACT",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "ACT",
+        "startChapter": 5,
+        "endChapter": 7
+      },
+      {
+        "book": "ACT",
+        "startChapter": 8,
+        "endChapter": 10
+      },
+      {
+        "book": "ACT",
+        "startChapter": 11,
+        "endChapter": 13
+      },
+      {
+        "book": "ACT",
+        "startChapter": 14,
+        "endChapter": 16
+      },
+      {
+        "book": "ACT",
+        "startChapter": 17,
+        "endChapter": 19
+      },
+      {
+        "book": "ACT",
+        "startChapter": 20,
+        "endChapter": 22
+      },
+      {
+        "book": "ACT",
+        "startChapter": 23,
+        "endChapter": 25
+      },
+      {
+        "book": "ACT",
+        "startChapter": 26,
+        "endChapter": 28
+      },
+      {
+        "book": "ROM",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "ROM",
+        "startChapter": 5,
+        "endChapter": 7
+      },
+      {
+        "book": "ROM",
+        "startChapter": 8,
+        "endChapter": 10
+      },
+      {
+        "book": "ROM",
+        "startChapter": 11,
+        "endChapter": 13
+      },
+      {
+        "book": "ROM",
+        "startChapter": 14,
+        "endChapter": 16
+      },
+      {
+        "book": "1CO",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "1CO",
+        "startChapter": 5,
+        "endChapter": 7
+      },
+      {
+        "book": "1CO",
+        "startChapter": 8,
+        "endChapter": 10
+      },
+      {
+        "book": "1CO",
+        "startChapter": 11,
+        "endChapter": 13
+      },
+      {
+        "book": "1CO",
+        "startChapter": 14,
+        "endChapter": 16
+      },
+      {
+        "book": "2CO",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "2CO",
+        "startChapter": 5,
+        "endChapter": 7
+      },
+      {
+        "book": "2CO",
+        "startChapter": 8,
+        "endChapter": 10
+      },
+      {
+        "book": "2CO",
+        "startChapter": 11,
+        "endChapter": 13
+      },
+      {
+        "book": "GAL",
+        "startChapter": 1,
+        "endChapter": 3
+      },
+      {
+        "book": "GAL",
+        "startChapter": 4,
+        "endChapter": 6
+      },
+      {
+        "book": "EPH",
+        "startChapter": 1,
+        "endChapter": 3
+      },
+      {
+        "book": "EPH",
+        "startChapter": 4,
+        "endChapter": 6
+      },
+      {
+        "book": "PHP",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "COL",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "1TH",
+        "startChapter": 1,
+        "endChapter": 3
+      },
+      {
+        "book": "1TH",
+        "startChapter": 4,
         "endChapter": 5
+      },
+      {
+        "book": "2TH",
+        "startChapter": 1,
+        "endChapter": 3
+      },
+      {
+        "book": "1TI",
+        "startChapter": 1,
+        "endChapter": 3
+      },
+      {
+        "book": "1TI",
+        "startChapter": 4,
+        "endChapter": 6
+      },
+      {
+        "book": "2TI",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "TIT",
+        "startChapter": 1,
+        "endChapter": 3
+      },
+      {
+        "book": "PHM",
+        "startChapter": 1,
+        "endChapter": 1
+      },
+      {
+        "book": "HEB",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "HEB",
+        "startChapter": 5,
+        "endChapter": 7
+      },
+      {
+        "book": "HEB",
+        "startChapter": 8,
+        "endChapter": 10
+      },
+      {
+        "book": "HEB",
+        "startChapter": 11,
+        "endChapter": 13
+      },
+      {
+        "book": "JAS",
+        "startChapter": 1,
+        "endChapter": 3
+      },
+      {
+        "book": "JAS",
+        "startChapter": 4,
+        "endChapter": 5
+      },
+      {
+        "book": "1PE",
+        "startChapter": 1,
+        "endChapter": 3
+      },
+      {
+        "book": "1PE",
+        "startChapter": 4,
+        "endChapter": 5
+      },
+      {
+        "book": "2PE",
+        "startChapter": 1,
+        "endChapter": 3
+      },
+      {
+        "book": "1JN",
+        "startChapter": 1,
+        "endChapter": 3
+      },
+      {
+        "book": "1JN",
+        "startChapter": 4,
+        "endChapter": 5
+      },
+      {
+        "book": "2JN",
+        "startChapter": 1,
+        "endChapter": 1
+      },
+      {
+        "book": "3JN",
+        "startChapter": 1,
+        "endChapter": 1
+      },
+      {
+        "book": "JUD",
+        "startChapter": 1,
+        "endChapter": 1
+      },
+      {
+        "book": "REV",
+        "startChapter": 1,
+        "endChapter": 4
+      },
+      {
+        "book": "REV",
+        "startChapter": 5,
+        "endChapter": 7
+      },
+      {
+        "book": "REV",
+        "startChapter": 8,
+        "endChapter": 10
+      },
+      {
+        "book": "REV",
+        "startChapter": 11,
+        "endChapter": 13
+      },
+      {
+        "book": "REV",
+        "startChapter": 14,
+        "endChapter": 16
+      },
+      {
+        "book": "REV",
+        "startChapter": 17,
+        "endChapter": 19
+      },
+      {
+        "book": "REV",
+        "startChapter": 20,
+        "endChapter": 22
       }
     ]
   }
