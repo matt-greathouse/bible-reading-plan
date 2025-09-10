@@ -55,7 +55,7 @@ let osisToUserFriendlyNames: [String: String] = [
     "1TI": "1 Timothy",
     "2TI": "2 Timothy",
     "TIT": "Titus",
-    "PHI": "Philemon",
+    "PHM": "Philemon",
     "HEB": "Hebrews",
     "JAS": "James",
     "1PE": "1 Peter",
