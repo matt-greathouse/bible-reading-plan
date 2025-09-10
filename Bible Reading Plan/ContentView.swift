@@ -9,45 +9,125 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct ContentView: View {
-    @AppStorage("savedPlan", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var savedPlan: Int = 0
-    @AppStorage("savedDay", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var savedDay: Int = 0
-    
+    // Legacy single-plan storage for migration
+    @AppStorage("savedPlan", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var legacySavedPlan: Int = 0
+    @AppStorage("savedDay", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var legacySavedDay: Int = 0
+
+    // New multi-plan storage
+    @AppStorage("selectedPlans", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) private var selectedPlansJSON: String = "[]"
+    @AppStorage("progressByPlan", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) private var progressByPlanJSON: String = "{}"
+
     @State private var readingPlans: [ReadingPlan] = []
-    // Import UI lives in ReadingPlanSelectionView now
-    
-    func loadReadingPlans() {
-        readingPlans = ReadingPlanService.shared.loadReadingPlans()
+
+    // MARK: - Persistence helpers
+    private func getSelectedPlanIds() -> [Int] {
+        if let data = selectedPlansJSON.data(using: .utf8),
+           let ids = try? JSONDecoder().decode([Int].self, from: data) {
+            return ids
+        }
+        return []
     }
 
+    private func setSelectedPlanIds(_ ids: [Int]) {
+        if let data = try? JSONEncoder().encode(ids),
+           let json = String(data: data, encoding: .utf8) {
+            selectedPlansJSON = json
+        }
+    }
+
+    private func getProgressMap() -> [Int: Int] {
+        if let data = progressByPlanJSON.data(using: .utf8),
+           let map = try? JSONDecoder().decode([Int: Int].self, from: data) {
+            return map
+        }
+        return [:]
+    }
+
+    private func setProgressMap(_ map: [Int: Int]) {
+        if let data = try? JSONEncoder().encode(map),
+           let json = String(data: data, encoding: .utf8) {
+            progressByPlanJSON = json
+        }
+    }
+
+    // MARK: - Data
+    private func loadReadingPlans() {
+        readingPlans = ReadingPlanService.shared.loadReadingPlans()
+        migrateLegacyIfNeeded()
+    }
+
+    private func migrateLegacyIfNeeded() {
+        var ids = getSelectedPlanIds()
+        var map = getProgressMap()
+
+        if ids.isEmpty && legacySavedPlan != 0 {
+            ids = [legacySavedPlan]
+            map[legacySavedPlan] = legacySavedDay
+            setSelectedPlanIds(ids)
+            setProgressMap(map)
+        }
+    }
+
+    // MARK: - View
     var body: some View {
         NavigationView {
-            VStack {
-                let selectedPlan = readingPlans.first(where: { $0.id == savedPlan })
-                if let plan = selectedPlan, savedDay < plan.days.count {
-                    Text("Today's Reading")
-                        .font(.title)
-                    Text("\(plan.days[savedDay].toString())")
-                        .font(.largeTitle)
-                    Button(action: {
-                                openYouVersionURL(book: plan.days[savedDay].book, chapter: plan.days[savedDay].startChapter)
-                            }) {
-                                Text("Open in Bible App")
-                                    .font(.headline)
-                                    .padding()
-                                    .background(Color.blue)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(8)
-                            }
+            ScrollView {
+                let selectedIds = getSelectedPlanIds()
+                let progress = getProgressMap()
+                if selectedIds.isEmpty {
+                    VStack(spacing: 12) {
+                        Text("Select Reading Plans")
+                            .font(.title)
+                        Text("Use the menu to choose one or more plans.")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    Text("Select a Reading Plan")
-                        .font(.title)
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Today's Readings")
+                            .font(.title)
+                        ForEach(selectedIds, id: \.self) { planId in
+                            if let plan = readingPlans.first(where: { $0.id == planId }) {
+                                let dayIndex = min(progress[planId] ?? 0, max(plan.days.count - 1, 0))
+                                if plan.days.indices.contains(dayIndex) {
+                                    let day = plan.days[dayIndex]
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        Text(plan.name)
+                                            .font(.headline)
+                                        Text(day.toString())
+                                            .font(.title3)
+                                        Button(action: {
+                                            openYouVersionURL(book: day.book, chapter: day.startChapter)
+                                        }) {
+                                            Text("Open in Bible App")
+                                                .font(.subheadline)
+                                                .padding(8)
+                                                .background(Color.blue)
+                                                .foregroundColor(.white)
+                                                .cornerRadius(8)
+                                        }
+                                    }
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding()
+                                    .background(Color(UIColor.secondarySystemBackground))
+                                    .cornerRadius(12)
+                                }
+                            }
+                        }
+                    }
+                    .padding()
                 }
             }
             .onAppear(perform: loadReadingPlans)
             .navigationTitle("Bible Reading Plans")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    NavigationLink(destination: ReadingPlanSelectionView(readingPlans: $readingPlans, savedPlan: $savedPlan, savedDay: $savedDay)) {
+                    NavigationLink(destination: ReadingPlanSelectionView(
+                        readingPlans: $readingPlans,
+                        selectedPlansJSON: $selectedPlansJSON,
+                        progressByPlanJSON: $progressByPlanJSON
+                    )) {
                         Image(systemName: "ellipsis.circle")
                     }
                 }
@@ -68,23 +148,70 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
+
 struct ReadingPlanSelectionView: View {
     @Binding var readingPlans: [ReadingPlan]
-    @Binding var savedPlan: Int
-    @Binding var savedDay: Int
+    @Binding var selectedPlansJSON: String
+    @Binding var progressByPlanJSON: String
     @State private var showingImporter: Bool = false
     @State private var importErrorMessage: String?
     @State private var pendingDeletePlan: ReadingPlan?
 
+    // Helpers
+    private func getSelectedPlanIds() -> [Int] {
+        if let data = selectedPlansJSON.data(using: .utf8),
+           let ids = try? JSONDecoder().decode([Int].self, from: data) {
+            return ids
+        }
+        return []
+    }
+
+    private func setSelectedPlanIds(_ ids: [Int]) {
+        if let data = try? JSONEncoder().encode(ids),
+           let json = String(data: data, encoding: .utf8) {
+            selectedPlansJSON = json
+        }
+    }
+
+    private func getProgressMap() -> [Int: Int] {
+        if let data = progressByPlanJSON.data(using: .utf8),
+           let map = try? JSONDecoder().decode([Int: Int].self, from: data) {
+            return map
+        }
+        return [:]
+    }
+
+    private func setProgressMap(_ map: [Int: Int]) {
+        if let data = try? JSONEncoder().encode(map),
+           let json = String(data: data, encoding: .utf8) {
+            progressByPlanJSON = json
+        }
+    }
+
     var body: some View {
         List {
             ForEach(readingPlans, id: \.id) { plan in
-                VStack {
-                    Button(action: {
-                        savedPlan = plan.id
-                        savedDay = 0 // Reset the day when a new plan is selected
-                    }) {
-                        Text(plan.name)
+                let isSelected = getSelectedPlanIds().contains(plan.id)
+                VStack(alignment: .leading) {
+                    HStack {
+                        Toggle(isOn: Binding(
+                            get: { isSelected },
+                            set: { newValue in
+                                var ids = getSelectedPlanIds()
+                                var progress = getProgressMap()
+                                if newValue {
+                                    if !ids.contains(plan.id) { ids.append(plan.id) }
+                                    if progress[plan.id] == nil { progress[plan.id] = 0 }
+                                } else {
+                                    ids.removeAll { $0 == plan.id }
+                                    progress.removeValue(forKey: plan.id)
+                                }
+                                setSelectedPlanIds(ids)
+                                setProgressMap(progress)
+                            }
+                        )) {
+                            Text(plan.name)
+                        }
                     }
                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                         if ReadingPlanService.shared.isImported(planId: plan.id) {
@@ -95,8 +222,18 @@ struct ReadingPlanSelectionView: View {
                             }
                         }
                     }
-                    if savedPlan == plan.id {
-                        Picker("Select Day", selection: $savedDay) {
+
+                    if isSelected {
+                        let progress = getProgressMap()
+                        let selection = progress[plan.id] ?? 0
+                        Picker("Select Day", selection: Binding(
+                            get: { min(selection, max(plan.days.count - 1, 0)) },
+                            set: { newValue in
+                                var map = getProgressMap()
+                                map[plan.id] = newValue
+                                setProgressMap(map)
+                            }
+                        )) {
                             ForEach(plan.days.indices, id: \.self) { dayIndex in
                                 dayLabel(for: plan.days[dayIndex], at: dayIndex)
                             }
@@ -106,7 +243,7 @@ struct ReadingPlanSelectionView: View {
                 }
             }
         }
-        .navigationTitle("Select a Plan")
+        .navigationTitle("Manage Plans")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: { showingImporter = true }) {
@@ -143,11 +280,13 @@ struct ReadingPlanSelectionView: View {
                 if let plan = pendingDeletePlan {
                     do {
                         readingPlans = try ReadingPlanService.shared.deletePlan(withId: plan.id)
-                        // Reset selection if deleted plan was selected
-                        if !readingPlans.contains(where: { $0.id == savedPlan }) {
-                            savedPlan = 0
-                            savedDay = 0
-                        }
+                        // Remove from selection and progress if deleted
+                        var ids = getSelectedPlanIds()
+                        var map = getProgressMap()
+                        ids.removeAll { $0 == plan.id }
+                        map.removeValue(forKey: plan.id)
+                        setSelectedPlanIds(ids)
+                        setProgressMap(map)
                     } catch {
                         importErrorMessage = error.localizedDescription
                     }

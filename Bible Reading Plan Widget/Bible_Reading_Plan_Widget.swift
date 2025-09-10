@@ -16,14 +16,18 @@ struct SimpleEntry: TimelineEntry {
 }
 
 struct Bible_Reading_Plan_WidgetEntryView : View {
-    @AppStorage("savedPlan", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var savedPlan: Int = 0
-    @AppStorage("savedDay", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var savedDay: Int = 0
+    @AppStorage("selectedPlans", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) private var selectedPlansJSON: String = "[]"
+    @AppStorage("progressByPlan", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) private var progressByPlanJSON: String = "{}"
     
     var body: some View {
         let readingPlans = ReadingPlanService.shared.loadReadingPlans()
-        
-        if let plan = readingPlans.first(where: { $0.id == savedPlan }), savedDay < plan.days.count {
-            let day = plan.days[savedDay]
+        let selectedIds: [Int] = (try? JSONDecoder().decode([Int].self, from: selectedPlansJSON.data(using: .utf8) ?? Data())) ?? []
+        let progressMap: [Int: Int] = (try? JSONDecoder().decode([Int: Int].self, from: progressByPlanJSON.data(using: .utf8) ?? Data())) ?? [:]
+
+        if let firstId = selectedIds.first,
+           let plan = readingPlans.first(where: { $0.id == firstId }) {
+            let idx = min(progressMap[firstId] ?? 0, max(plan.days.count - 1, 0))
+            let day = plan.days[idx]
             VStack {
                 Text("Today's Reading")
                     .font(.subheadline)
@@ -55,15 +59,36 @@ struct Bible_Reading_Plan_Widget: Widget {
 
 struct Provider: TimelineProvider {
     @AppStorage("lastCheckedDate", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var lastCheckedDate: Date = Date()
-    @AppStorage("savedDay", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var savedDay: Int = 0
+    @AppStorage("selectedPlans", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) private var selectedPlansJSON: String = "[]"
+    @AppStorage("progressByPlan", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) private var progressByPlanJSON: String = "{}"
     
     func performDailyCheck() {
         let currentDate = Date()
         let calendar = Calendar.current
-        
-        if !calendar.isDateInToday(lastCheckedDate) {
-            savedDay += 1
+
+        guard !calendar.isDateInToday(lastCheckedDate) else { return }
+
+        // Increment progress for all selected plans, clamped to plan length - 1
+        let plans = ReadingPlanService.shared.loadReadingPlans()
+        let planLengths = Dictionary(uniqueKeysWithValues: plans.map { ($0.id, max($0.days.count - 1, 0)) })
+
+        if let idsData = selectedPlansJSON.data(using: .utf8),
+           let ids = try? JSONDecoder().decode([Int].self, from: idsData),
+           var map = try? JSONDecoder().decode([Int: Int].self, from: progressByPlanJSON.data(using: .utf8) ?? Data("{}".utf8)) {
+            var changed = false
+            for id in ids {
+                let current = map[id] ?? 0
+                let maxIndex = planLengths[id] ?? current
+                let next = min(current + 1, maxIndex)
+                if next != current { changed = true }
+                map[id] = next
+            }
+            if changed, let data = try? JSONEncoder().encode(map),
+               let json = String(data: data, encoding: .utf8) {
+                progressByPlanJSON = json
+            }
         }
+
         lastCheckedDate = currentDate
     }
     
