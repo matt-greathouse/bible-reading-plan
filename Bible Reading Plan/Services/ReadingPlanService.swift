@@ -6,6 +6,9 @@
 //
 
 import Foundation
+#if canImport(WidgetKit)
+import WidgetKit
+#endif
 
 enum AppGroup {
     static let suiteName = "group.bible.reading.plan.tracker"
@@ -68,6 +71,11 @@ enum ReadingPlanStateStore {
            let json = String(data: data, encoding: .utf8) {
             defaults.set(json, forKey: legacyProgressKey)
         }
+        #if canImport(WidgetKit)
+        if !Bundle.main.bundlePath.hasSuffix(".appex") {
+            WidgetCenter.shared.reloadAllTimelines()
+        }
+        #endif
         if !skipCloud {
             ReadingPlanCloudSync.shared.pushIfNeeded(state: state, timestamp: timestamp)
         }
