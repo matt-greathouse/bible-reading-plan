@@ -26,6 +26,7 @@ struct ReadingPlanState: Codable, Equatable {
 
 enum ReadingPlanStateStore {
     static let stateKey = "readingPlanState"
+    static let timestampKey = "readingPlanStateLastUpdated"
     private static let legacySelectedPlansKey = "selectedPlans"
     private static let legacyProgressKey = "progressByPlan"
 
@@ -53,10 +54,11 @@ enum ReadingPlanStateStore {
         return load(from: defaults)
     }
 
-    static func save(_ state: ReadingPlanState, to defaults: UserDefaults) {
+    static func save(_ state: ReadingPlanState, to defaults: UserDefaults, timestamp: Date = Date(), skipCloud: Bool = false) {
         if let data = encode(state) {
             defaults.set(data, forKey: stateKey)
         }
+        defaults.set(timestamp.timeIntervalSince1970, forKey: timestampKey)
         // Keep legacy keys in sync for compatibility.
         if let data = try? JSONEncoder().encode(state.selectedPlanIds),
            let json = String(data: data, encoding: .utf8) {
@@ -65,6 +67,9 @@ enum ReadingPlanStateStore {
         if let data = try? JSONEncoder().encode(state.progressByPlan),
            let json = String(data: data, encoding: .utf8) {
             defaults.set(json, forKey: legacyProgressKey)
+        }
+        if !skipCloud {
+            ReadingPlanCloudSync.shared.pushIfNeeded(state: state, timestamp: timestamp)
         }
     }
 
@@ -81,6 +86,10 @@ enum ReadingPlanStateStore {
 
     static func encode(_ state: ReadingPlanState) -> Data? {
         try? JSONEncoder().encode(state)
+    }
+
+    static func lastUpdatedTimestamp(in defaults: UserDefaults) -> TimeInterval {
+        defaults.double(forKey: timestampKey)
     }
 
     private static func readLegacySelectedPlanIds(from defaults: UserDefaults) -> [Int] {
@@ -138,6 +147,84 @@ struct ReadingPlanMigration {
             legacyDay: clearedLegacyDay,
             didMigrate: didMigrate
         )
+    }
+}
+
+final class ReadingPlanCloudSync {
+    static let shared = ReadingPlanCloudSync()
+    static var isEnabled = true
+    static var isAvailable: Bool {
+        FileManager.default.ubiquityIdentityToken != nil
+    }
+
+    private let store = NSUbiquitousKeyValueStore.default
+    private var isObserving = false
+    private var isApplyingRemoteChange = false
+
+    private init() {}
+
+    func start() {
+        guard Self.isEnabled, isICloudAvailable() else { return }
+        if !isObserving {
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(handleExternalChange),
+                name: NSUbiquitousKeyValueStore.didChangeExternallyNotification,
+                object: store
+            )
+            isObserving = true
+        }
+        refresh()
+    }
+
+    func refresh() {
+        guard Self.isEnabled, isICloudAvailable() else { return }
+        store.synchronize()
+        pullFromCloudIfNewer()
+    }
+
+    func pushIfNeeded(state: ReadingPlanState, timestamp: Date) {
+        guard Self.isEnabled, isICloudAvailable() else { return }
+        guard !isApplyingRemoteChange else { return }
+        guard let data = ReadingPlanStateStore.encode(state) else { return }
+        store.set(data, forKey: ReadingPlanStateStore.stateKey)
+        store.set(timestamp.timeIntervalSince1970, forKey: ReadingPlanStateStore.timestampKey)
+        store.synchronize()
+    }
+
+    @objc private func handleExternalChange(_ notification: Notification) {
+        pullFromCloudIfNewer()
+    }
+
+    private func pullFromCloudIfNewer() {
+        guard let data = store.data(forKey: ReadingPlanStateStore.stateKey),
+              let state = ReadingPlanStateStore.decode(data) else {
+            return
+        }
+
+        let remoteTimestamp = store.double(forKey: ReadingPlanStateStore.timestampKey)
+        let localTimestamp = ReadingPlanStateStore.lastUpdatedTimestamp(in: AppGroup.defaults)
+        let localState = AppGroup.defaults.data(forKey: ReadingPlanStateStore.stateKey)
+            .flatMap { ReadingPlanStateStore.decode($0) } ?? .empty
+        let shouldApply: Bool
+        if remoteTimestamp > localTimestamp {
+            shouldApply = true
+        } else if localTimestamp == 0, localState == .empty {
+            shouldApply = true
+        } else {
+            shouldApply = false
+        }
+
+        guard shouldApply else { return }
+
+        isApplyingRemoteChange = true
+        let timestamp = remoteTimestamp > 0 ? Date(timeIntervalSince1970: remoteTimestamp) : Date()
+        ReadingPlanStateStore.save(state, to: AppGroup.defaults, timestamp: timestamp, skipCloud: true)
+        isApplyingRemoteChange = false
+    }
+
+    private func isICloudAvailable() -> Bool {
+        Self.isAvailable
     }
 }
 

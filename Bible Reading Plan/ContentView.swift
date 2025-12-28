@@ -184,6 +184,23 @@ struct ReadingPlanSelectionView: View {
         ReadingPlanStateStore.update(in: AppGroup.defaults, update)
     }
 
+    private var iCloudStatusText: String {
+        if !ReadingPlanCloudSync.isEnabled {
+            return "Off"
+        }
+        return ReadingPlanCloudSync.isAvailable ? "On" : "Unavailable"
+    }
+
+    private var lastUpdatedText: String {
+        let timestamp = ReadingPlanStateStore.lastUpdatedTimestamp(in: AppGroup.defaults)
+        guard timestamp > 0 else { return "Never" }
+        let date = Date(timeIntervalSince1970: timestamp)
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
+
     var body: some View {
         let state = loadState()
         List {
@@ -247,6 +264,20 @@ struct ReadingPlanSelectionView: View {
             Section("Bible Apps") {
                 Toggle("YouVersion", isOn: $youVersionEnabled)
                 Toggle("Logos Bible", isOn: $logosEnabled)
+            }
+            Section("iCloud Sync") {
+                HStack {
+                    Text("Status")
+                    Spacer()
+                    Text(iCloudStatusText)
+                        .foregroundColor(.secondary)
+                }
+                HStack {
+                    Text("Last Update")
+                    Spacer()
+                    Text(lastUpdatedText)
+                        .foregroundColor(.secondary)
+                }
             }
         }
         .navigationTitle("Manage Plans")

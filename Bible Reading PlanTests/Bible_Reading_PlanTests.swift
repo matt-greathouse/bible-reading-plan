@@ -103,7 +103,7 @@ final class Bible_Reading_PlanTests: XCTestCase {
     }
 
     private func setState(_ state: ReadingPlanState, in defaults: UserDefaults) {
-        ReadingPlanStateStore.save(state, to: defaults)
+        ReadingPlanStateStore.save(state, to: defaults, skipCloud: true)
     }
 
     private func readProgressMap(from defaults: UserDefaults) -> [Int: Int] {
