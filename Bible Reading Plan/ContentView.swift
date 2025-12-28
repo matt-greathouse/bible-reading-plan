@@ -21,7 +21,8 @@ struct ContentView: View {
 
     // MARK: - Persistence helpers
     private func loadState() -> ReadingPlanState {
-        ReadingPlanStateStore.load(from: readingPlanStateData, defaults: AppGroup.defaults)
+        _ = readingPlanStateData
+        return ReadingPlanStateStore.load(from: AppGroup.defaults)
     }
 
     private func saveState(_ state: ReadingPlanState) {
@@ -177,7 +178,8 @@ struct ReadingPlanSelectionView: View {
 
     // Helpers
     private func loadState() -> ReadingPlanState {
-        ReadingPlanStateStore.load(from: readingPlanStateData, defaults: AppGroup.defaults)
+        _ = readingPlanStateData
+        return ReadingPlanStateStore.load(from: AppGroup.defaults)
     }
 
     private func updateState(_ update: (inout ReadingPlanState) -> Void) {
@@ -255,6 +257,7 @@ struct ReadingPlanSelectionView: View {
                         )) {
                             ForEach(plan.days.indices, id: \.self) { dayIndex in
                                 dayLabel(for: plan.days[dayIndex], at: dayIndex)
+                                    .tag(dayIndex)
                             }
                         }
                         .pickerStyle(WheelPickerStyle())

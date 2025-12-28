@@ -20,7 +20,8 @@ struct Bible_Reading_Plan_WidgetEntryView : View {
     
     var body: some View {
         let readingPlans = ReadingPlanService.shared.loadReadingPlans()
-        let state = ReadingPlanStateStore.load(from: readingPlanStateData, defaults: AppGroup.defaults)
+        let _ = readingPlanStateData
+        let state = ReadingPlanStateStore.load(from: AppGroup.defaults)
         let selectedIds = state.selectedPlanIds
         let progressMap = state.progressByPlan
 
