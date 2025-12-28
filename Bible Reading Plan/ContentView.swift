@@ -8,6 +8,12 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
+private enum AppPreferenceKey {
+    static let appGroup = "group.bible.reading.plan.tracker"
+    static let youVersionEnabled = "openWithYouVersionEnabled"
+    static let logosEnabled = "openWithLogosEnabled"
+}
+
 struct ContentView: View {
     // Legacy single-plan storage for migration
     @AppStorage("savedPlan", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var legacySavedPlan: Int = 0
@@ -16,6 +22,8 @@ struct ContentView: View {
     // New multi-plan storage
     @AppStorage("selectedPlans", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) private var selectedPlansJSON: String = "[]"
     @AppStorage("progressByPlan", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) private var progressByPlanJSON: String = "{}"
+    @AppStorage(AppPreferenceKey.youVersionEnabled, store: UserDefaults(suiteName: AppPreferenceKey.appGroup)) private var youVersionEnabled: Bool = true
+    @AppStorage(AppPreferenceKey.logosEnabled, store: UserDefaults(suiteName: AppPreferenceKey.appGroup)) private var logosEnabled: Bool = false
 
     @State private var readingPlans: [ReadingPlan] = []
 
@@ -97,15 +105,33 @@ struct ContentView: View {
                                             .font(.headline)
                                         Text(day.toString())
                                             .font(.title3)
-                                        Button(action: {
-                                            openYouVersionURL(book: day.book, chapter: day.startChapter)
-                                        }) {
-                                            Text("Open in Bible App")
-                                                .font(.subheadline)
-                                                .padding(8)
-                                                .background(Color.blue)
-                                                .foregroundColor(.white)
-                                                .cornerRadius(8)
+                                        if youVersionEnabled || logosEnabled {
+                                            VStack(alignment: .leading, spacing: 8) {
+                                                if youVersionEnabled {
+                                                    Button(action: {
+                                                        openYouVersionURL(book: day.book, chapter: day.startChapter)
+                                                    }) {
+                                                        Text("Open in YouVersion")
+                                                            .font(.subheadline)
+                                                            .padding(8)
+                                                            .background(Color.blue)
+                                                            .foregroundColor(.white)
+                                                            .cornerRadius(8)
+                                                    }
+                                                }
+                                                if logosEnabled {
+                                                    Button(action: {
+                                                        openLogosURL(book: day.book, chapter: day.startChapter)
+                                                    }) {
+                                                        Text("Open in Logos Bible")
+                                                            .font(.subheadline)
+                                                            .padding(8)
+                                                            .background(Color.orange)
+                                                            .foregroundColor(.white)
+                                                            .cornerRadius(8)
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -143,6 +169,15 @@ struct ContentView: View {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
     }
+
+    private func openLogosURL(book: String, chapter: Int) {
+        let bookName = osisToUserFriendlyNames[book] ?? book
+        let reference = "Bible.\(bookName).\(chapter)"
+        let encodedReference = reference.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? reference
+        if let url = URL(string: "logosres:esv?ref=\(encodedReference)") {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }
+    }
 }
 
 #Preview {
@@ -156,6 +191,8 @@ struct ReadingPlanSelectionView: View {
     @State private var showingImporter: Bool = false
     @State private var importErrorMessage: String?
     @State private var pendingDeletePlan: ReadingPlan?
+    @AppStorage(AppPreferenceKey.youVersionEnabled, store: UserDefaults(suiteName: AppPreferenceKey.appGroup)) private var youVersionEnabled: Bool = true
+    @AppStorage(AppPreferenceKey.logosEnabled, store: UserDefaults(suiteName: AppPreferenceKey.appGroup)) private var logosEnabled: Bool = false
 
     // Helpers
     private func getSelectedPlanIds() -> [Int] {
@@ -241,6 +278,10 @@ struct ReadingPlanSelectionView: View {
                         .pickerStyle(WheelPickerStyle())
                     }
                 }
+            }
+            Section("Bible Apps") {
+                Toggle("YouVersion", isOn: $youVersionEnabled)
+                Toggle("Logos Bible", isOn: $logosEnabled)
             }
         }
         .navigationTitle("Manage Plans")
