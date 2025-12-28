@@ -3,7 +3,7 @@
 .env
 .idea
 .ra-aid
-xcuserdata/
+**/xcuserdata/*
 *.xcodeproj/*
 !*.xcodeproj/project.pbxproj
 !*.xcodeproj/xcshareddata/
