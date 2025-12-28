@@ -134,7 +134,6 @@ struct ContentView: View {
             }
         }
     }
-    }
 
     // Function to open YouVersion URL
     private func openYouVersionURL(book: String, chapter: Int) {
@@ -144,6 +143,7 @@ struct ContentView: View {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
     }
+}
 
 #Preview {
     ContentView()

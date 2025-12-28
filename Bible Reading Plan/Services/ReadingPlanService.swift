@@ -13,6 +13,17 @@ class ReadingPlanService {
     
     private init() {}
 
+    private enum DefaultsKey {
+        static let selectedPlans = "selectedPlans"
+        static let progressByPlan = "progressByPlan"
+        static let lastCheckedDate = "lastCheckedDate"
+    }
+
+    private let appGroupSuiteName = "group.bible.reading.plan.tracker"
+    private var appGroupDefaults: UserDefaults {
+        UserDefaults(suiteName: appGroupSuiteName) ?? .standard
+    }
+
     // Directory to store imported reading plan JSON files
     private var importDirectoryURL: URL? {
         let fm = FileManager.default
@@ -54,6 +65,32 @@ class ReadingPlanService {
         }
 
         return allPlans
+    }
+
+    func advanceDailyProgressIfNeeded(now: Date = Date(), calendar: Calendar = .current) {
+        let defaults = appGroupDefaults
+        let lastCheckedDate = defaults.object(forKey: DefaultsKey.lastCheckedDate) as? Date ?? Date()
+
+        guard !calendar.isDateInToday(lastCheckedDate) else { return }
+
+        let plans = loadReadingPlans()
+        let planLengths = Dictionary(uniqueKeysWithValues: plans.map { ($0.id, max($0.days.count - 1, 0)) })
+
+        let ids = readSelectedPlanIds(from: defaults)
+        var map = readProgressMap(from: defaults)
+        var changed = false
+        for id in ids {
+            let current = map[id] ?? 0
+            let maxIndex = planLengths[id] ?? current
+            let next = min(current + 1, maxIndex)
+            if next != current { changed = true }
+            map[id] = next
+        }
+        if changed {
+            writeProgressMap(map, to: defaults)
+        }
+
+        defaults.set(now, forKey: DefaultsKey.lastCheckedDate)
     }
 
     // Import a reading plan JSON file (single plan or array of plans) and store a copy
@@ -139,6 +176,31 @@ class ReadingPlanService {
 
     // MARK: - Helpers
     private var planSources: [Int: URL] = [:]
+
+    private func readSelectedPlanIds(from defaults: UserDefaults) -> [Int] {
+        guard let json = defaults.string(forKey: DefaultsKey.selectedPlans),
+              let data = json.data(using: .utf8),
+              let ids = try? JSONDecoder().decode([Int].self, from: data) else {
+            return []
+        }
+        return ids
+    }
+
+    private func readProgressMap(from defaults: UserDefaults) -> [Int: Int] {
+        guard let json = defaults.string(forKey: DefaultsKey.progressByPlan),
+              let data = json.data(using: .utf8),
+              let map = try? JSONDecoder().decode([Int: Int].self, from: data) else {
+            return [:]
+        }
+        return map
+    }
+
+    private func writeProgressMap(_ map: [Int: Int], to defaults: UserDefaults) {
+        if let data = try? JSONEncoder().encode(map),
+           let json = String(data: data, encoding: .utf8) {
+            defaults.set(json, forKey: DefaultsKey.progressByPlan)
+        }
+    }
 
     private func uniqueFileName(basename: String, ext: String, in directory: URL) -> String {
         let fm = FileManager.default

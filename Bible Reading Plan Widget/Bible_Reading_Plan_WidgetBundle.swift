@@ -12,7 +12,5 @@ import SwiftUI
 struct Bible_Reading_Plan_WidgetBundle: WidgetBundle {
     var body: some Widget {
         Bible_Reading_Plan_Widget()
-        Bible_Reading_Plan_WidgetControl()
-        Bible_Reading_Plan_WidgetLiveActivity()
     }
 }
