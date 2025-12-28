@@ -8,54 +8,24 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-private enum AppPreferenceKey {
-    static let appGroup = "group.bible.reading.plan.tracker"
-    static let youVersionEnabled = "openWithYouVersionEnabled"
-    static let logosEnabled = "openWithLogosEnabled"
-}
-
 struct ContentView: View {
     // Legacy single-plan storage for migration
-    @AppStorage("savedPlan", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var legacySavedPlan: Int = 0
-    @AppStorage("savedDay", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) var legacySavedDay: Int = 0
+    @AppStorage("savedPlan", store: AppGroup.defaults) var legacySavedPlan: Int = 0
+    @AppStorage("savedDay", store: AppGroup.defaults) var legacySavedDay: Int = 0
 
-    // New multi-plan storage
-    @AppStorage("selectedPlans", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) private var selectedPlansJSON: String = "[]"
-    @AppStorage("progressByPlan", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) private var progressByPlanJSON: String = "{}"
-    @AppStorage(AppPreferenceKey.youVersionEnabled, store: UserDefaults(suiteName: AppPreferenceKey.appGroup)) private var youVersionEnabled: Bool = true
-    @AppStorage(AppPreferenceKey.logosEnabled, store: UserDefaults(suiteName: AppPreferenceKey.appGroup)) private var logosEnabled: Bool = false
+    @AppStorage(ReadingPlanStateStore.stateKey, store: AppGroup.defaults) private var readingPlanStateData: Data = Data()
+    @AppStorage(AppPreferenceKey.youVersionEnabled, store: AppGroup.defaults) private var youVersionEnabled: Bool = true
+    @AppStorage(AppPreferenceKey.logosEnabled, store: AppGroup.defaults) private var logosEnabled: Bool = false
 
     @State private var readingPlans: [ReadingPlan] = []
 
     // MARK: - Persistence helpers
-    private func getSelectedPlanIds() -> [Int] {
-        if let data = selectedPlansJSON.data(using: .utf8),
-           let ids = try? JSONDecoder().decode([Int].self, from: data) {
-            return ids
-        }
-        return []
+    private func loadState() -> ReadingPlanState {
+        ReadingPlanStateStore.load(from: readingPlanStateData, defaults: AppGroup.defaults)
     }
 
-    private func setSelectedPlanIds(_ ids: [Int]) {
-        if let data = try? JSONEncoder().encode(ids),
-           let json = String(data: data, encoding: .utf8) {
-            selectedPlansJSON = json
-        }
-    }
-
-    private func getProgressMap() -> [Int: Int] {
-        if let data = progressByPlanJSON.data(using: .utf8),
-           let map = try? JSONDecoder().decode([Int: Int].self, from: data) {
-            return map
-        }
-        return [:]
-    }
-
-    private func setProgressMap(_ map: [Int: Int]) {
-        if let data = try? JSONEncoder().encode(map),
-           let json = String(data: data, encoding: .utf8) {
-            progressByPlanJSON = json
-        }
+    private func saveState(_ state: ReadingPlanState) {
+        ReadingPlanStateStore.save(state, to: AppGroup.defaults)
     }
 
     // MARK: - Data
@@ -65,14 +35,27 @@ struct ContentView: View {
     }
 
     private func migrateLegacyIfNeeded() {
-        var ids = getSelectedPlanIds()
-        var map = getProgressMap()
+        let state = loadState()
+        let result = ReadingPlanMigration.migrateLegacyIfNeeded(
+            selectedPlanIds: state.selectedPlanIds,
+            progressMap: state.progressByPlan,
+            legacyPlanId: legacySavedPlan,
+            legacyDay: legacySavedDay
+        )
 
-        if ids.isEmpty && legacySavedPlan != 0 {
-            ids = [legacySavedPlan]
-            map[legacySavedPlan] = legacySavedDay
-            setSelectedPlanIds(ids)
-            setProgressMap(map)
+        if result.didMigrate {
+            let updated = ReadingPlanState(
+                selectedPlanIds: result.selectedPlanIds,
+                progressByPlan: result.progressMap
+            )
+            saveState(updated)
+        }
+
+        if legacySavedPlan != result.legacyPlanId {
+            legacySavedPlan = result.legacyPlanId
+        }
+        if legacySavedDay != result.legacyDay {
+            legacySavedDay = result.legacyDay
         }
     }
 
@@ -80,8 +63,9 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                let selectedIds = getSelectedPlanIds()
-                let progress = getProgressMap()
+                let state = loadState()
+                let selectedIds = state.selectedPlanIds
+                let progress = state.progressByPlan
                 if selectedIds.isEmpty {
                     VStack(spacing: 12) {
                         Text("Select Reading Plans")
@@ -150,9 +134,7 @@ struct ContentView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     NavigationLink(destination: ReadingPlanSelectionView(
-                        readingPlans: $readingPlans,
-                        selectedPlansJSON: $selectedPlansJSON,
-                        progressByPlanJSON: $progressByPlanJSON
+                        readingPlans: $readingPlans
                     )) {
                         Image(systemName: "ellipsis.circle")
                     }
@@ -186,65 +168,45 @@ struct ContentView: View {
 
 struct ReadingPlanSelectionView: View {
     @Binding var readingPlans: [ReadingPlan]
-    @Binding var selectedPlansJSON: String
-    @Binding var progressByPlanJSON: String
     @State private var showingImporter: Bool = false
     @State private var importErrorMessage: String?
     @State private var pendingDeletePlan: ReadingPlan?
-    @AppStorage(AppPreferenceKey.youVersionEnabled, store: UserDefaults(suiteName: AppPreferenceKey.appGroup)) private var youVersionEnabled: Bool = true
-    @AppStorage(AppPreferenceKey.logosEnabled, store: UserDefaults(suiteName: AppPreferenceKey.appGroup)) private var logosEnabled: Bool = false
+    @AppStorage(ReadingPlanStateStore.stateKey, store: AppGroup.defaults) private var readingPlanStateData: Data = Data()
+    @AppStorage(AppPreferenceKey.youVersionEnabled, store: AppGroup.defaults) private var youVersionEnabled: Bool = true
+    @AppStorage(AppPreferenceKey.logosEnabled, store: AppGroup.defaults) private var logosEnabled: Bool = false
 
     // Helpers
-    private func getSelectedPlanIds() -> [Int] {
-        if let data = selectedPlansJSON.data(using: .utf8),
-           let ids = try? JSONDecoder().decode([Int].self, from: data) {
-            return ids
-        }
-        return []
+    private func loadState() -> ReadingPlanState {
+        ReadingPlanStateStore.load(from: readingPlanStateData, defaults: AppGroup.defaults)
     }
 
-    private func setSelectedPlanIds(_ ids: [Int]) {
-        if let data = try? JSONEncoder().encode(ids),
-           let json = String(data: data, encoding: .utf8) {
-            selectedPlansJSON = json
-        }
-    }
-
-    private func getProgressMap() -> [Int: Int] {
-        if let data = progressByPlanJSON.data(using: .utf8),
-           let map = try? JSONDecoder().decode([Int: Int].self, from: data) {
-            return map
-        }
-        return [:]
-    }
-
-    private func setProgressMap(_ map: [Int: Int]) {
-        if let data = try? JSONEncoder().encode(map),
-           let json = String(data: data, encoding: .utf8) {
-            progressByPlanJSON = json
-        }
+    private func updateState(_ update: (inout ReadingPlanState) -> Void) {
+        ReadingPlanStateStore.update(in: AppGroup.defaults, update)
     }
 
     var body: some View {
+        let state = loadState()
         List {
             ForEach(readingPlans, id: \.id) { plan in
-                let isSelected = getSelectedPlanIds().contains(plan.id)
+                let isSelected = state.selectedPlanIds.contains(plan.id)
                 VStack(alignment: .leading) {
                     HStack {
                         Toggle(isOn: Binding(
-                            get: { isSelected },
+                            get: { loadState().selectedPlanIds.contains(plan.id) },
                             set: { newValue in
-                                var ids = getSelectedPlanIds()
-                                var progress = getProgressMap()
-                                if newValue {
-                                    if !ids.contains(plan.id) { ids.append(plan.id) }
-                                    if progress[plan.id] == nil { progress[plan.id] = 0 }
-                                } else {
-                                    ids.removeAll { $0 == plan.id }
-                                    progress.removeValue(forKey: plan.id)
+                                updateState { state in
+                                    if newValue {
+                                        if !state.selectedPlanIds.contains(plan.id) {
+                                            state.selectedPlanIds.append(plan.id)
+                                        }
+                                        if state.progressByPlan[plan.id] == nil {
+                                            state.progressByPlan[plan.id] = 0
+                                        }
+                                    } else {
+                                        state.selectedPlanIds.removeAll { $0 == plan.id }
+                                        state.progressByPlan.removeValue(forKey: plan.id)
+                                    }
                                 }
-                                setSelectedPlanIds(ids)
-                                setProgressMap(progress)
                             }
                         )) {
                             Text(plan.name)
@@ -261,14 +223,17 @@ struct ReadingPlanSelectionView: View {
                     }
 
                     if isSelected {
-                        let progress = getProgressMap()
+                        let progress = state.progressByPlan
                         let selection = progress[plan.id] ?? 0
                         Picker("Select Day", selection: Binding(
-                            get: { min(selection, max(plan.days.count - 1, 0)) },
+                            get: {
+                                let value = loadState().progressByPlan[plan.id] ?? 0
+                                return min(value, max(plan.days.count - 1, 0))
+                            },
                             set: { newValue in
-                                var map = getProgressMap()
-                                map[plan.id] = newValue
-                                setProgressMap(map)
+                                updateState { state in
+                                    state.progressByPlan[plan.id] = newValue
+                                }
                             }
                         )) {
                             ForEach(plan.days.indices, id: \.self) { dayIndex in
@@ -318,20 +283,18 @@ struct ReadingPlanSelectionView: View {
         .alert("Delete Imported Plan?", isPresented: Binding(get: { pendingDeletePlan != nil }, set: { if !$0 { pendingDeletePlan = nil } })) {
             Button("Cancel", role: .cancel) { pendingDeletePlan = nil }
             Button("Delete", role: .destructive) {
-                if let plan = pendingDeletePlan {
-                    do {
-                        readingPlans = try ReadingPlanService.shared.deletePlan(withId: plan.id)
-                        // Remove from selection and progress if deleted
-                        var ids = getSelectedPlanIds()
-                        var map = getProgressMap()
-                        ids.removeAll { $0 == plan.id }
-                        map.removeValue(forKey: plan.id)
-                        setSelectedPlanIds(ids)
-                        setProgressMap(map)
-                    } catch {
-                        importErrorMessage = error.localizedDescription
-                    }
-                }
+                        if let plan = pendingDeletePlan {
+                            do {
+                                readingPlans = try ReadingPlanService.shared.deletePlan(withId: plan.id)
+                                // Remove from selection and progress if deleted
+                                updateState { state in
+                                    state.selectedPlanIds.removeAll { $0 == plan.id }
+                                    state.progressByPlan.removeValue(forKey: plan.id)
+                                }
+                            } catch {
+                                importErrorMessage = error.localizedDescription
+                            }
+                        }
                 pendingDeletePlan = nil
             }
         } message: {

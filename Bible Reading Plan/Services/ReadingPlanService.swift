@@ -6,7 +6,140 @@
 //
 
 import Foundation
-import UniformTypeIdentifiers
+
+enum AppGroup {
+    static let suiteName = "group.bible.reading.plan.tracker"
+    static let defaults = UserDefaults(suiteName: suiteName) ?? .standard
+}
+
+enum AppPreferenceKey {
+    static let youVersionEnabled = "openWithYouVersionEnabled"
+    static let logosEnabled = "openWithLogosEnabled"
+}
+
+struct ReadingPlanState: Codable, Equatable {
+    var selectedPlanIds: [Int]
+    var progressByPlan: [Int: Int]
+
+    static let empty = ReadingPlanState(selectedPlanIds: [], progressByPlan: [:])
+}
+
+enum ReadingPlanStateStore {
+    static let stateKey = "readingPlanState"
+    private static let legacySelectedPlansKey = "selectedPlans"
+    private static let legacyProgressKey = "progressByPlan"
+
+    static func load(from defaults: UserDefaults) -> ReadingPlanState {
+        if let data = defaults.data(forKey: stateKey),
+           let state = decode(data) {
+            return state
+        }
+
+        let ids = readLegacySelectedPlanIds(from: defaults)
+        let progress = readLegacyProgressMap(from: defaults)
+        let state = ReadingPlanState(selectedPlanIds: ids, progressByPlan: progress)
+
+        if !ids.isEmpty || !progress.isEmpty {
+            save(state, to: defaults)
+        }
+
+        return state
+    }
+
+    static func load(from data: Data, defaults: UserDefaults) -> ReadingPlanState {
+        if let state = decode(data) {
+            return state
+        }
+        return load(from: defaults)
+    }
+
+    static func save(_ state: ReadingPlanState, to defaults: UserDefaults) {
+        if let data = encode(state) {
+            defaults.set(data, forKey: stateKey)
+        }
+        // Keep legacy keys in sync for compatibility.
+        if let data = try? JSONEncoder().encode(state.selectedPlanIds),
+           let json = String(data: data, encoding: .utf8) {
+            defaults.set(json, forKey: legacySelectedPlansKey)
+        }
+        if let data = try? JSONEncoder().encode(state.progressByPlan),
+           let json = String(data: data, encoding: .utf8) {
+            defaults.set(json, forKey: legacyProgressKey)
+        }
+    }
+
+    static func update(in defaults: UserDefaults, _ update: (inout ReadingPlanState) -> Void) {
+        var state = load(from: defaults)
+        update(&state)
+        save(state, to: defaults)
+    }
+
+    static func decode(_ data: Data) -> ReadingPlanState? {
+        guard !data.isEmpty else { return nil }
+        return try? JSONDecoder().decode(ReadingPlanState.self, from: data)
+    }
+
+    static func encode(_ state: ReadingPlanState) -> Data? {
+        try? JSONEncoder().encode(state)
+    }
+
+    private static func readLegacySelectedPlanIds(from defaults: UserDefaults) -> [Int] {
+        guard let json = defaults.string(forKey: legacySelectedPlansKey),
+              let data = json.data(using: .utf8),
+              let ids = try? JSONDecoder().decode([Int].self, from: data) else {
+            return []
+        }
+        return ids
+    }
+
+    private static func readLegacyProgressMap(from defaults: UserDefaults) -> [Int: Int] {
+        guard let json = defaults.string(forKey: legacyProgressKey),
+              let data = json.data(using: .utf8),
+              let map = try? JSONDecoder().decode([Int: Int].self, from: data) else {
+            return [:]
+        }
+        return map
+    }
+}
+
+struct ReadingPlanMigration {
+    struct Result {
+        let selectedPlanIds: [Int]
+        let progressMap: [Int: Int]
+        let legacyPlanId: Int
+        let legacyDay: Int
+        let didMigrate: Bool
+    }
+
+    static func migrateLegacyIfNeeded(
+        selectedPlanIds: [Int],
+        progressMap: [Int: Int],
+        legacyPlanId: Int,
+        legacyDay: Int
+    ) -> Result {
+        var ids = selectedPlanIds
+        var progress = progressMap
+        var didMigrate = false
+
+        if ids.isEmpty, legacyPlanId != 0 {
+            ids = [legacyPlanId]
+            progress[legacyPlanId] = legacyDay
+            didMigrate = true
+        }
+
+        let shouldClearLegacy = legacyPlanId != 0 || legacyDay != 0
+        let clearedLegacyPlanId = shouldClearLegacy ? 0 : legacyPlanId
+        let clearedLegacyDay = shouldClearLegacy ? 0 : legacyDay
+
+        return Result(
+            selectedPlanIds: ids,
+            progressMap: progress,
+            legacyPlanId: clearedLegacyPlanId,
+            legacyDay: clearedLegacyDay,
+            didMigrate: didMigrate
+        )
+    }
+}
 
 class ReadingPlanService {
     static let shared = ReadingPlanService()
@@ -14,21 +147,31 @@ class ReadingPlanService {
     private init() {}
 
     private enum DefaultsKey {
-        static let selectedPlans = "selectedPlans"
-        static let progressByPlan = "progressByPlan"
         static let lastCheckedDate = "lastCheckedDate"
     }
 
-    private let appGroupSuiteName = "group.bible.reading.plan.tracker"
     private var appGroupDefaults: UserDefaults {
-        UserDefaults(suiteName: appGroupSuiteName) ?? .standard
+        AppGroup.defaults
+    }
+
+    private var legacyImportDirectoryURL: URL? {
+        let fm = FileManager.default
+        guard let docs = fm.urls(for: .documentDirectory, in: .userDomainMask).first else { return nil }
+        return docs.appendingPathComponent("ImportedReadingPlans", isDirectory: true)
+    }
+
+    private var sharedImportDirectoryURL: URL? {
+        let fm = FileManager.default
+        guard let container = fm.containerURL(forSecurityApplicationGroupIdentifier: AppGroup.suiteName) else {
+            return nil
+        }
+        return container.appendingPathComponent("ImportedReadingPlans", isDirectory: true)
     }
 
     // Directory to store imported reading plan JSON files
     private var importDirectoryURL: URL? {
         let fm = FileManager.default
-        guard let docs = fm.urls(for: .documentDirectory, in: .userDomainMask).first else { return nil }
-        let dir = docs.appendingPathComponent("ImportedReadingPlans", isDirectory: true)
+        guard let dir = sharedImportDirectoryURL ?? legacyImportDirectoryURL else { return nil }
         if !fm.fileExists(atPath: dir.path) {
             try? fm.createDirectory(at: dir, withIntermediateDirectories: true)
         }
@@ -39,6 +182,7 @@ class ReadingPlanService {
         var allPlans: [ReadingPlan] = []
         // Reset sources mapping
         planSources = [:]
+        migrateLegacyImportsIfNeeded()
         // Load bundled plans
         if let url = Bundle.main.url(forResource: "ReadingPlans", withExtension: "json"),
            let data = try? Data(contentsOf: url),
@@ -67,8 +211,8 @@ class ReadingPlanService {
         return allPlans
     }
 
-    func advanceDailyProgressIfNeeded(now: Date = Date(), calendar: Calendar = .current) {
-        let defaults = appGroupDefaults
+    func advanceDailyProgressIfNeeded(now: Date = Date(), calendar: Calendar = .current, defaults: UserDefaults? = nil) {
+        let defaults = defaults ?? appGroupDefaults
         let lastCheckedDate = defaults.object(forKey: DefaultsKey.lastCheckedDate) as? Date ?? Date()
 
         guard !calendar.isDateInToday(lastCheckedDate) else { return }
@@ -76,8 +220,9 @@ class ReadingPlanService {
         let plans = loadReadingPlans()
         let planLengths = Dictionary(uniqueKeysWithValues: plans.map { ($0.id, max($0.days.count - 1, 0)) })
 
-        let ids = readSelectedPlanIds(from: defaults)
-        var map = readProgressMap(from: defaults)
+        let state = ReadingPlanStateStore.load(from: defaults)
+        let ids = state.selectedPlanIds
+        var map = state.progressByPlan
         var changed = false
         for id in ids {
             let current = map[id] ?? 0
@@ -87,7 +232,9 @@ class ReadingPlanService {
             map[id] = next
         }
         if changed {
-            writeProgressMap(map, to: defaults)
+            var updated = state
+            updated.progressByPlan = map
+            ReadingPlanStateStore.save(updated, to: defaults)
         }
 
         defaults.set(now, forKey: DefaultsKey.lastCheckedDate)
@@ -177,28 +324,35 @@ class ReadingPlanService {
     // MARK: - Helpers
     private var planSources: [Int: URL] = [:]
 
-    private func readSelectedPlanIds(from defaults: UserDefaults) -> [Int] {
-        guard let json = defaults.string(forKey: DefaultsKey.selectedPlans),
-              let data = json.data(using: .utf8),
-              let ids = try? JSONDecoder().decode([Int].self, from: data) else {
-            return []
+    private func migrateLegacyImportsIfNeeded() {
+        guard let legacyDir = legacyImportDirectoryURL,
+              let sharedDir = sharedImportDirectoryURL,
+              legacyDir != sharedDir else {
+            return
         }
-        return ids
-    }
-
-    private func readProgressMap(from defaults: UserDefaults) -> [Int: Int] {
-        guard let json = defaults.string(forKey: DefaultsKey.progressByPlan),
-              let data = json.data(using: .utf8),
-              let map = try? JSONDecoder().decode([Int: Int].self, from: data) else {
-            return [:]
+        let fm = FileManager.default
+        guard fm.fileExists(atPath: legacyDir.path),
+              let files = try? fm.contentsOfDirectory(at: legacyDir, includingPropertiesForKeys: nil),
+              !files.isEmpty else {
+            return
         }
-        return map
-    }
 
-    private func writeProgressMap(_ map: [Int: Int], to defaults: UserDefaults) {
-        if let data = try? JSONEncoder().encode(map),
-           let json = String(data: data, encoding: .utf8) {
-            defaults.set(json, forKey: DefaultsKey.progressByPlan)
+        _ = importDirectoryURL
+        for file in files where file.pathExtension.lowercased() == "json" {
+            let baseName = file.deletingPathExtension().lastPathComponent
+            let safeBaseName = baseName.isEmpty ? "ImportedPlan" : baseName
+            let destName = uniqueFileName(basename: safeBaseName, ext: "json", in: sharedDir)
+            let destURL = sharedDir.appendingPathComponent(destName)
+            do {
+                try fm.moveItem(at: file, to: destURL)
+            } catch {
+                try? fm.copyItem(at: file, to: destURL)
+            }
+        }
+
+        if let remaining = try? fm.contentsOfDirectory(at: legacyDir, includingPropertiesForKeys: nil),
+           remaining.isEmpty {
+            try? fm.removeItem(at: legacyDir)
         }
     }
 

@@ -16,13 +16,13 @@ struct SimpleEntry: TimelineEntry {
 }
 
 struct Bible_Reading_Plan_WidgetEntryView : View {
-    @AppStorage("selectedPlans", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) private var selectedPlansJSON: String = "[]"
-    @AppStorage("progressByPlan", store: UserDefaults(suiteName: "group.bible.reading.plan.tracker")) private var progressByPlanJSON: String = "{}"
+    @AppStorage(ReadingPlanStateStore.stateKey, store: AppGroup.defaults) private var readingPlanStateData: Data = Data()
     
     var body: some View {
         let readingPlans = ReadingPlanService.shared.loadReadingPlans()
-        let selectedIds: [Int] = (try? JSONDecoder().decode([Int].self, from: selectedPlansJSON.data(using: .utf8) ?? Data())) ?? []
-        let progressMap: [Int: Int] = (try? JSONDecoder().decode([Int: Int].self, from: progressByPlanJSON.data(using: .utf8) ?? Data())) ?? [:]
+        let state = ReadingPlanStateStore.load(from: readingPlanStateData, defaults: AppGroup.defaults)
+        let selectedIds = state.selectedPlanIds
+        let progressMap = state.progressByPlan
 
         if let firstId = selectedIds.first,
            let plan = readingPlans.first(where: { $0.id == firstId }) {

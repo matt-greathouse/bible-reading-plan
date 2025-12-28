@@ -5,52 +5,108 @@
 //  Created by Matt Greathouse on 2/17/25.
 //
 
+import Foundation
 import XCTest
 @testable import Bible_Reading_Plan
 
 final class Bible_Reading_PlanTests: XCTestCase {
 
-    func testReadingPlanLoading() throws {
-        let bundle = Bundle(for: type(of: self))
-        guard let url = bundle.url(forResource: "ReadingPlans", withExtension: "json") else {
-            XCTFail("Missing file: ReadingPlans.json")
+    func testReadingPlanServiceLoadsPlans() throws {
+        let plans = ReadingPlanService.shared.loadReadingPlans()
+
+        XCTAssertFalse(plans.isEmpty)
+        XCTAssertTrue(plans.allSatisfy { !$0.name.isEmpty && !$0.days.isEmpty })
+        XCTAssertEqual(Set(plans.map { $0.id }).count, plans.count)
+    }
+
+    func testAdvanceDailyProgressIncrementsOncePerDay() throws {
+        let plans = ReadingPlanService.shared.loadReadingPlans()
+        guard let plan = plans.first else {
+            XCTFail("No reading plans loaded")
             return
         }
 
-        let data = try Data(contentsOf: url)
-        let plans = try JSONDecoder().decode([ReadingPlan].self, from: data)
+        let (defaults, suiteName) = makeTestDefaults()
+        defer { defaults.removePersistentDomain(forName: suiteName) }
 
-        XCTAssertEqual(plans.count, 2)
-        XCTAssertEqual(plans.first?.name, "Plan 1")
+        setState(ReadingPlanState(selectedPlanIds: [plan.id], progressByPlan: [plan.id: 0]), in: defaults)
+
+        let calendar = Calendar(identifier: .gregorian)
+        let now = Date(timeIntervalSinceReferenceDate: 100000)
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: now) ?? now
+        defaults.set(yesterday, forKey: "lastCheckedDate")
+
+        ReadingPlanService.shared.advanceDailyProgressIfNeeded(now: now, calendar: calendar, defaults: defaults)
+        XCTAssertEqual(readProgressMap(from: defaults)[plan.id], 1)
+
+        ReadingPlanService.shared.advanceDailyProgressIfNeeded(now: now, calendar: calendar, defaults: defaults)
+        XCTAssertEqual(readProgressMap(from: defaults)[plan.id], 1)
     }
 
-    func testDaySelectionPersistence() throws {
-        let userDefaults = UserDefaults.standard
-        userDefaults.set(2, forKey: "currentDay")
+    func testAdvanceDailyProgressCapsAtLastDay() throws {
+        let plans = ReadingPlanService.shared.loadReadingPlans()
+        guard let plan = plans.first else {
+            XCTFail("No reading plans loaded")
+            return
+        }
 
-        let currentDay = userDefaults.integer(forKey: "currentDay")
-        XCTAssertEqual(currentDay, 2)
-    func testPersistenceOfSelectedPlanAndCurrentDay() throws {
-        let userDefaults = UserDefaults.standard
-        userDefaults.set("Plan 1", forKey: "selectedPlanName")
-        userDefaults.set(1, forKey: "currentDay")
+        let (defaults, suiteName) = makeTestDefaults()
+        defer { defaults.removePersistentDomain(forName: suiteName) }
 
-        let selectedPlanName = userDefaults.string(forKey: "selectedPlanName")
-        let currentDay = userDefaults.integer(forKey: "currentDay")
+        let lastIndex = max(plan.days.count - 1, 0)
+        setState(ReadingPlanState(selectedPlanIds: [plan.id], progressByPlan: [plan.id: lastIndex]), in: defaults)
 
-        XCTAssertEqual(selectedPlanName, "Plan 1")
-        XCTAssertEqual(currentDay, 1)
+        let calendar = Calendar(identifier: .gregorian)
+        let now = Date(timeIntervalSinceReferenceDate: 200000)
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: now) ?? now
+        defaults.set(yesterday, forKey: "lastCheckedDate")
+
+        ReadingPlanService.shared.advanceDailyProgressIfNeeded(now: now, calendar: calendar, defaults: defaults)
+        XCTAssertEqual(readProgressMap(from: defaults)[plan.id], lastIndex)
     }
 
-    func testDailyIncrementLogic() throws {
-        let userDefaults = UserDefaults.standard
-        userDefaults.set("Plan 1", forKey: "selectedPlanName")
-        userDefaults.set(1, forKey: "currentDay")
+    func testLegacyMigrationMovesAndClears() {
+        let result = ReadingPlanMigration.migrateLegacyIfNeeded(
+            selectedPlanIds: [],
+            progressMap: [:],
+            legacyPlanId: 42,
+            legacyDay: 3
+        )
 
-        let app = Bible_Reading_PlanApp()
-        app.incrementDayIfNeeded()
+        XCTAssertEqual(result.selectedPlanIds, [42])
+        XCTAssertEqual(result.progressMap[42], 3)
+        XCTAssertEqual(result.legacyPlanId, 0)
+        XCTAssertEqual(result.legacyDay, 0)
+        XCTAssertTrue(result.didMigrate)
+    }
 
-        let currentDay = userDefaults.integer(forKey: "currentDay")
-        XCTAssertEqual(currentDay, 2)
+    func testLegacyMigrationDoesNotOverrideExistingSelection() {
+        let result = ReadingPlanMigration.migrateLegacyIfNeeded(
+            selectedPlanIds: [1],
+            progressMap: [1: 5],
+            legacyPlanId: 99,
+            legacyDay: 2
+        )
+
+        XCTAssertEqual(result.selectedPlanIds, [1])
+        XCTAssertEqual(result.progressMap[1], 5)
+        XCTAssertEqual(result.legacyPlanId, 0)
+        XCTAssertEqual(result.legacyDay, 0)
+        XCTAssertFalse(result.didMigrate)
+    }
+
+    private func makeTestDefaults() -> (UserDefaults, String) {
+        let suiteName = "BibleReadingPlanTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName) ?? .standard
+        defaults.removePersistentDomain(forName: suiteName)
+        return (defaults, suiteName)
+    }
+
+    private func setState(_ state: ReadingPlanState, in defaults: UserDefaults) {
+        ReadingPlanStateStore.save(state, to: defaults)
+    }
+
+    private func readProgressMap(from defaults: UserDefaults) -> [Int: Int] {
+        ReadingPlanStateStore.load(from: defaults).progressByPlan
     }
 }
