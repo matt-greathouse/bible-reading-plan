@@ -578,7 +578,7 @@
 		62E0122D2D63A8BE0078DD7F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = BibleReadingPlan;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Bible Reading Plan/Bible Reading Plan.entitlements";
 				CODE_SIGN_STYLE = Automatic;
@@ -610,7 +610,7 @@
 		62E0122E2D63A8BE0078DD7F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = BibleReadingPlan;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Bible Reading Plan/Bible Reading Plan.entitlements";
 				CODE_SIGN_STYLE = Automatic;
