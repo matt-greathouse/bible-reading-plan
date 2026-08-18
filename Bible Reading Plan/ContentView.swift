@@ -18,6 +18,8 @@ struct ContentView: View {
     @AppStorage(AppPreferenceKey.logosEnabled, store: AppGroup.defaults) private var logosEnabled: Bool = false
 
     @State private var readingPlans: [ReadingPlan] = []
+    @State private var hasAppeared = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     // MARK: - Persistence helpers
     private func loadState() -> ReadingPlanState {
@@ -62,75 +64,69 @@ struct ContentView: View {
 
     // MARK: - View
     var body: some View {
-        NavigationView {
-            ScrollView {
+        NavigationStack {
+            ZStack {
+                ReadingPlanTheme.background
+                    .ignoresSafeArea()
+
+                ScrollView {
                 let state = loadState()
                 let selectedIds = state.selectedPlanIds
                 let progress = state.progressByPlan
                 if selectedIds.isEmpty {
-                    VStack(spacing: 12) {
-                        Text("Select Reading Plans")
-                            .font(.title)
-                        Text("Use the menu to choose one or more plans.")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    EmptyReadingPlansView()
+                        .padding(.top, 96)
+                        .frame(maxWidth: .infinity)
                 } else {
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("Today's Readings")
-                            .font(.title)
+                    VStack(alignment: .leading, spacing: ReadingPlanTheme.cardSpacing) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Today’s Readings")
+                                .font(.title2.weight(.semibold))
+                                .foregroundStyle(ReadingPlanTheme.primaryText)
+                            Text("A quiet place to begin your day.")
+                                .font(.subheadline)
+                                .foregroundStyle(ReadingPlanTheme.secondaryText)
+                        }
+                        .opacity(hasAppeared ? 1 : 0)
+                        .offset(y: hasAppeared ? 0 : 10)
+
                         ForEach(selectedIds, id: \.self) { planId in
                             if let plan = readingPlans.first(where: { $0.id == planId }) {
                                 let dayIndex = min(progress[planId] ?? 0, max(plan.days.count - 1, 0))
                                 if plan.days.indices.contains(dayIndex) {
-                                    let day = plan.days[dayIndex]
-                                    VStack(alignment: .leading, spacing: 6) {
-                                        Text(plan.name)
-                                            .font(.headline)
-                                        Text(day.toString())
-                                            .font(.title3)
-                                        if youVersionEnabled || logosEnabled {
-                                            VStack(alignment: .leading, spacing: 8) {
-                                                if youVersionEnabled {
-                                                    Button(action: {
-                                                        openYouVersionURL(book: day.book, chapter: day.startChapter)
-                                                    }) {
-                                                        Text("Open in YouVersion")
-                                                            .font(.subheadline)
-                                                            .padding(8)
-                                                            .background(Color.blue)
-                                                            .foregroundColor(.white)
-                                                            .cornerRadius(8)
-                                                    }
-                                                }
-                                                if logosEnabled {
-                                                    Button(action: {
-                                                        openLogosURL(book: day.book, chapter: day.startChapter)
-                                                    }) {
-                                                        Text("Open in Logos Bible")
-                                                            .font(.subheadline)
-                                                            .padding(8)
-                                                            .background(Color.orange)
-                                                            .foregroundColor(.white)
-                                                            .cornerRadius(8)
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding()
-                                    .background(Color(UIColor.secondarySystemBackground))
-                                    .cornerRadius(12)
+                                    ReadingCard(
+                                        plan: plan,
+                                        day: plan.days[dayIndex],
+                                        dayIndex: dayIndex,
+                                        showsYouVersion: youVersionEnabled,
+                                        showsLogos: logosEnabled,
+                                        openYouVersion: openYouVersionURL,
+                                        openLogos: openLogosURL
+                                    )
+                                    .opacity(hasAppeared ? 1 : 0)
+                                    .offset(y: hasAppeared ? 0 : 14)
+                                    .transition(reduceMotion ? .opacity : .opacity.combined(with: .move(edge: .bottom)))
                                 }
                             }
                         }
                     }
-                    .padding()
+                    .padding(.horizontal)
+                    .padding(.vertical, 20)
                 }
             }
+            }
             .onAppear(perform: loadReadingPlans)
+            .onAppear {
+                guard !hasAppeared else { return }
+                if reduceMotion {
+                    hasAppeared = true
+                } else {
+                    withAnimation(.easeOut(duration: 0.35)) {
+                        hasAppeared = true
+                    }
+                }
+            }
+            .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: selectedIdsForAnimation)
             .navigationTitle("Bible Reading Plans")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -141,7 +137,12 @@ struct ContentView: View {
                     }
                 }
             }
+            .tint(ReadingPlanTheme.accent)
         }
+    }
+
+    private var selectedIdsForAnimation: [Int] {
+        loadState().selectedPlanIds
     }
 
     // Function to open YouVersion URL
@@ -163,6 +164,162 @@ struct ContentView: View {
     }
 }
 
+private struct EmptyReadingPlansView: View {
+    var body: some View {
+        VStack(spacing: 14) {
+            Image(systemName: "book.closed")
+                .font(.system(size: 34, weight: .light))
+                .foregroundStyle(ReadingPlanTheme.accent)
+                .padding(16)
+                .background(ReadingPlanTheme.card, in: Circle())
+
+            Text("Select Reading Plans")
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(ReadingPlanTheme.primaryText)
+            Text("Choose one or more plans from the menu to see today’s readings here.")
+                .font(.subheadline)
+                .foregroundStyle(ReadingPlanTheme.secondaryText)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 290)
+        }
+        .padding(28)
+    }
+}
+
+private struct ReadingCard: View {
+    let plan: ReadingPlan
+    let day: Day
+    let dayIndex: Int
+    let showsYouVersion: Bool
+    let showsLogos: Bool
+    let openYouVersion: (String, Int) -> Void
+    let openLogos: (String, Int) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Text(plan.name)
+                    .font(.headline)
+                    .foregroundStyle(ReadingPlanTheme.primaryText)
+                    .lineLimit(2)
+                Spacer(minLength: 8)
+                DayBadge(day: dayIndex + 1, total: plan.days.count)
+            }
+
+            Text(day.toString())
+                .font(.title3.weight(.medium))
+                .foregroundStyle(ReadingPlanTheme.primaryText)
+
+            ReadingProgressBar(currentDay: dayIndex + 1, totalDays: plan.days.count)
+
+            if showsYouVersion || showsLogos {
+                HStack(spacing: 10) {
+                    if showsYouVersion {
+                        DestinationLinkButton(title: "YouVersion", icon: "arrow.up.right") {
+                            openYouVersion(day.book, day.startChapter)
+                        }
+                    }
+                    if showsLogos {
+                        DestinationLinkButton(title: "Logos Bible", icon: "arrow.up.right") {
+                            openLogos(day.book, day.startChapter)
+                        }
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(20)
+        .background(ReadingPlanTheme.card, in: RoundedRectangle(cornerRadius: ReadingPlanTheme.cardCornerRadius, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: ReadingPlanTheme.cardCornerRadius, style: .continuous)
+                .stroke(ReadingPlanTheme.cardBorder, lineWidth: 1)
+        }
+        .shadow(color: .black.opacity(0.045), radius: 12, y: 5)
+        .accessibilityElement(children: .contain)
+    }
+}
+
+private struct DayBadge: View {
+    let day: Int
+    let total: Int
+
+    var body: some View {
+        Text("Day \(day) of \(max(total, 1))")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(ReadingPlanTheme.accent)
+            .padding(.horizontal, 9)
+            .padding(.vertical, 6)
+            .background(ReadingPlanTheme.accent.opacity(0.11), in: Capsule())
+            .accessibilityLabel("Day \(day) of \(max(total, 1))")
+    }
+}
+
+private struct ReadingProgressBar: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    let currentDay: Int
+    let totalDays: Int
+
+    private var progress: Double {
+        guard totalDays > 0 else { return 0 }
+        return min(max(Double(currentDay) / Double(totalDays), 0), 1)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(ReadingPlanTheme.progressTrack)
+                    Capsule()
+                        .fill(ReadingPlanTheme.accent)
+                        .frame(width: geometry.size.width * progress)
+                }
+            }
+            .frame(height: 5)
+
+            Text("\(Int(progress * 100))% complete")
+                .font(.caption)
+                .foregroundStyle(ReadingPlanTheme.secondaryText)
+        }
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.28), value: progress)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Reading plan progress, \(currentDay) of \(max(totalDays, 1)) days, \(Int(progress * 100)) percent complete")
+    }
+}
+
+private struct DestinationLinkButton: View {
+    let title: String
+    let icon: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Label(title, systemImage: icon)
+                .font(.subheadline.weight(.medium))
+                .lineLimit(1)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+        }
+        .buttonStyle(ReadingPlanButtonStyle())
+    }
+}
+
+private struct ReadingPlanButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundStyle(ReadingPlanTheme.accent)
+            .background(ReadingPlanTheme.accent.opacity(configuration.isPressed ? 0.16 : 0.1), in: RoundedRectangle(cornerRadius: ReadingPlanTheme.compactCornerRadius, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: ReadingPlanTheme.compactCornerRadius, style: .continuous)
+                    .stroke(ReadingPlanTheme.accent.opacity(0.2), lineWidth: 1)
+            }
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.97 : 1)
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.12), value: configuration.isPressed)
+    }
+}
+
 #Preview {
     ContentView()
 }
@@ -175,6 +332,7 @@ struct ReadingPlanSelectionView: View {
     @AppStorage(ReadingPlanStateStore.stateKey, store: AppGroup.defaults) private var readingPlanStateData: Data = Data()
     @AppStorage(AppPreferenceKey.youVersionEnabled, store: AppGroup.defaults) private var youVersionEnabled: Bool = true
     @AppStorage(AppPreferenceKey.logosEnabled, store: AppGroup.defaults) private var logosEnabled: Bool = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     // Helpers
     private func loadState() -> ReadingPlanState {
@@ -261,8 +419,11 @@ struct ReadingPlanSelectionView: View {
                             }
                         }
                         .pickerStyle(WheelPickerStyle())
+                        .transition(reduceMotion ? .opacity : .opacity.combined(with: .move(edge: .top)))
                     }
                 }
+                .listRowBackground(ReadingPlanTheme.card)
+                .animation(reduceMotion ? nil : .easeInOut(duration: 0.22), value: isSelected)
             }
             Section("Bible Apps") {
                 Toggle("YouVersion", isOn: $youVersionEnabled)
@@ -283,7 +444,11 @@ struct ReadingPlanSelectionView: View {
                 }
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(ReadingPlanTheme.background)
+        .listStyle(.insetGrouped)
         .navigationTitle("Manage Plans")
+        .tint(ReadingPlanTheme.accent)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: { showingImporter = true }) {
