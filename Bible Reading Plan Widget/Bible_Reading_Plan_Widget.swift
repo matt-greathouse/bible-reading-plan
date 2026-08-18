@@ -168,3 +168,25 @@ extension ConfigurationAppIntent {
 } timeline: {
     SimpleEntry(date: Date(), configuration: ConfigurationAppIntent())
 }
+
+#Preview("Widget · Small", traits: .fixedLayout(width: 169, height: 169)) {
+    ReadingPlanWidgetContent(
+        plan: ReadingPlan.previewPlans[0],
+        day: ReadingPlan.previewPlans[0].days[1],
+        dayIndex: 1,
+        family: .systemSmall
+    )
+    .padding()
+    .background(ReadingPlanTheme.background)
+}
+
+#Preview("Widget · Medium", traits: .fixedLayout(width: 329, height: 155)) {
+    ReadingPlanWidgetContent(
+        plan: ReadingPlan.previewPlans[1],
+        day: ReadingPlan.previewPlans[1].days[2],
+        dayIndex: 2,
+        family: .systemMedium
+    )
+    .padding()
+    .background(ReadingPlanTheme.background)
+}

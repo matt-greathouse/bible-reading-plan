@@ -20,9 +20,18 @@ struct ContentView: View {
     @State private var readingPlans: [ReadingPlan] = []
     @State private var hasAppeared = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    private let previewState: ReadingPlanState?
+
+    init(readingPlans: [ReadingPlan] = [], previewState: ReadingPlanState? = nil) {
+        _readingPlans = State(initialValue: readingPlans)
+        self.previewState = previewState
+    }
 
     // MARK: - Persistence helpers
     private func loadState() -> ReadingPlanState {
+        if let previewState {
+            return previewState
+        }
         _ = readingPlanStateData
         return ReadingPlanStateStore.load(from: AppGroup.defaults)
     }
@@ -33,11 +42,13 @@ struct ContentView: View {
 
     // MARK: - Data
     private func loadReadingPlans() {
+        guard previewState == nil else { return }
         readingPlans = ReadingPlanService.shared.loadReadingPlans()
         migrateLegacyIfNeeded()
     }
 
     private func migrateLegacyIfNeeded() {
+        guard previewState == nil else { return }
         let state = loadState()
         let result = ReadingPlanMigration.migrateLegacyIfNeeded(
             selectedPlanIds: state.selectedPlanIds,
@@ -320,10 +331,6 @@ private struct ReadingPlanButtonStyle: ButtonStyle {
     }
 }
 
-#Preview {
-    ContentView()
-}
-
 struct ReadingPlanSelectionView: View {
     @Binding var readingPlans: [ReadingPlan]
     @State private var showingImporter: Bool = false
@@ -333,14 +340,28 @@ struct ReadingPlanSelectionView: View {
     @AppStorage(AppPreferenceKey.youVersionEnabled, store: AppGroup.defaults) private var youVersionEnabled: Bool = true
     @AppStorage(AppPreferenceKey.logosEnabled, store: AppGroup.defaults) private var logosEnabled: Bool = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var previewStateOverride: ReadingPlanState?
+
+    init(readingPlans: Binding<[ReadingPlan]>, previewState: ReadingPlanState? = nil) {
+        _readingPlans = readingPlans
+        _previewStateOverride = State(initialValue: previewState)
+    }
 
     // Helpers
     private func loadState() -> ReadingPlanState {
+        if let previewStateOverride {
+            return previewStateOverride
+        }
         _ = readingPlanStateData
         return ReadingPlanStateStore.load(from: AppGroup.defaults)
     }
 
     private func updateState(_ update: (inout ReadingPlanState) -> Void) {
+        if var previewStateOverride {
+            update(&previewStateOverride)
+            self.previewStateOverride = previewStateOverride
+            return
+        }
         ReadingPlanStateStore.update(in: AppGroup.defaults, update)
     }
 
@@ -400,8 +421,6 @@ struct ReadingPlanSelectionView: View {
                     }
 
                     if isSelected {
-                        let progress = state.progressByPlan
-                        let selection = progress[plan.id] ?? 0
                         Picker("Select Day", selection: Binding(
                             get: {
                                 let value = loadState().progressByPlan[plan.id] ?? 0
@@ -504,4 +523,41 @@ struct ReadingPlanSelectionView: View {
     private func dayLabel(for day: Day, at index: Int) -> Text {
         return Text("Day \(index + 1): \(day.toString())")
     }
+}
+
+private struct ReadingPlanSelectionPreview: View {
+    @State private var readingPlans = ReadingPlan.previewPlans
+
+    var body: some View {
+        NavigationStack {
+            ReadingPlanSelectionView(
+                readingPlans: $readingPlans,
+                previewState: ReadingPlanState(
+                    selectedPlanIds: [ReadingPlan.previewPlans[0].id],
+                    progressByPlan: [ReadingPlan.previewPlans[0].id: 1]
+                )
+            )
+        }
+    }
+}
+
+#Preview("Today’s Readings") {
+    ContentView(
+        readingPlans: ReadingPlan.previewPlans,
+        previewState: ReadingPlanState(
+            selectedPlanIds: ReadingPlan.previewPlans.map(\.id),
+            progressByPlan: [
+                ReadingPlan.previewPlans[0].id: 1,
+                ReadingPlan.previewPlans[1].id: 2
+            ]
+        )
+    )
+}
+
+#Preview("No Reading Plans") {
+    ContentView(readingPlans: [], previewState: .empty)
+}
+
+#Preview("Manage Plans") {
+    ReadingPlanSelectionPreview()
 }
