@@ -23,6 +23,7 @@ enum AppPreferenceKey {
 struct ReadingPlanState: Codable, Equatable {
     var selectedPlanIds: [Int]
     var progressByPlan: [Int: Int]
+    var lastAdvancedReadingDay: String? = nil
 
     static let empty = ReadingPlanState(selectedPlanIds: [], progressByPlan: [:])
 }
@@ -307,32 +308,58 @@ class ReadingPlanService {
     }
 
     func advanceDailyProgressIfNeeded(now: Date = Date(), calendar: Calendar = .current, defaults: UserDefaults? = nil) {
+        let usesAppGroupDefaults = defaults == nil
         let defaults = defaults ?? appGroupDefaults
-        let lastCheckedDate = defaults.object(forKey: DefaultsKey.lastCheckedDate) as? Date ?? Date()
 
-        guard !calendar.isDateInToday(lastCheckedDate) else { return }
+        // The widget can invoke this method without the app having started iCloud sync,
+        // so refresh before deciding whether today's advance has already happened.
+        if usesAppGroupDefaults {
+            ReadingPlanCloudSync.shared.refresh()
+        }
+
+        let todayIdentifier = readingDayIdentifier(for: now, calendar: calendar)
+        var state = ReadingPlanStateStore.load(from: defaults)
+
+        if state.lastAdvancedReadingDay == todayIdentifier {
+            defaults.set(now, forKey: DefaultsKey.lastCheckedDate)
+            return
+        }
+
+        // Preserve the pre-sync behavior for existing installs: a local checkpoint for
+        // today means the plan has already been advanced, so seed the shared marker
+        // without advancing it again.
+        let legacyLastCheckedDate = defaults.object(forKey: DefaultsKey.lastCheckedDate) as? Date ?? now
+        if state.lastAdvancedReadingDay == nil, calendar.isDate(legacyLastCheckedDate, inSameDayAs: now) {
+            state.lastAdvancedReadingDay = todayIdentifier
+            ReadingPlanStateStore.save(state, to: defaults)
+            defaults.set(now, forKey: DefaultsKey.lastCheckedDate)
+            return
+        }
 
         let plans = loadReadingPlans()
         let planLengths = Dictionary(uniqueKeysWithValues: plans.map { ($0.id, max($0.days.count - 1, 0)) })
 
-        let state = ReadingPlanStateStore.load(from: defaults)
         let ids = state.selectedPlanIds
         var map = state.progressByPlan
-        var changed = false
         for id in ids {
             let current = map[id] ?? 0
             let maxIndex = planLengths[id] ?? current
             let next = min(current + 1, maxIndex)
-            if next != current { changed = true }
             map[id] = next
         }
-        if changed {
-            var updated = state
-            updated.progressByPlan = map
-            ReadingPlanStateStore.save(updated, to: defaults)
-        }
+
+        state.progressByPlan = map
+        state.lastAdvancedReadingDay = todayIdentifier
+        ReadingPlanStateStore.save(state, to: defaults)
 
         defaults.set(now, forKey: DefaultsKey.lastCheckedDate)
+    }
+
+    private func readingDayIdentifier(for date: Date, calendar: Calendar) -> String {
+        var gregorianCalendar = Calendar(identifier: .gregorian)
+        gregorianCalendar.timeZone = calendar.timeZone
+        let components = gregorianCalendar.dateComponents([.year, .month, .day], from: date)
+        return String(format: "%04d-%02d-%02d", components.year ?? 0, components.month ?? 0, components.day ?? 0)
     }
 
     // Import a reading plan JSON file (single plan or array of plans) and store a copy
