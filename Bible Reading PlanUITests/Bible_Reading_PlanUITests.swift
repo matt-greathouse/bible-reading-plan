@@ -1,43 +1,67 @@
-//
-//  Bible_Reading_PlanUITests.swift
-//  Bible Reading PlanUITests
-//
-//  Created by Matt Greathouse on 2/17/25.
-//
-
 import XCTest
 
 final class Bible_Reading_PlanUITests: XCTestCase {
-
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
-        continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
+    override func setUpWithError() throws { continueAfterFailure = false }
 
     @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
+    private func launch() -> XCUIApplication {
         let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing", "--reset-test-state"]
+        app.launchEnvironment["UITEST_SESSION"] = UUID().uuidString
         app.launch()
-
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        return app
     }
 
     @MainActor
-    func testLaunchPerformance() throws {
-        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
-            // This measures how long it takes to launch your application.
-            measure(metrics: [XCTApplicationLaunchMetric()]) {
-                XCUIApplication().launch()
-            }
-        }
+    func testSelectionDayImportAndDeletion() throws {
+        let app = launch()
+        let manage = app.buttons["manage-plans"]
+        XCTAssertTrue(manage.waitForExistence(timeout: 10))
+        manage.tap()
+        let select = app.switches["select-bundled:1"]
+        XCTAssertTrue(select.waitForExistence(timeout: 5))
+        select.switches.firstMatch.tap()
+        let wheel = app.pickerWheels.firstMatch
+        XCTAssertTrue(wheel.waitForExistence(timeout: 5))
+        wheel.adjust(toPickerWheelValue: "Day 3: John 3")
+        let selectedDay = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Day 3: John 3"), object: wheel)
+        XCTAssertEqual(XCTWaiter.wait(for: [selectedDay], timeout: 5), .completed)
+
+        let fixture = app.buttons["import-test-fixture"]
+        for _ in 0..<5 where !fixture.isHittable { app.swipeUp() }
+        XCTAssertTrue(fixture.isHittable)
+        fixture.tap()
+        let imported = app.switches.matching(NSPredicate(format: "identifier BEGINSWITH %@", "select-imported:")).firstMatch
+        for _ in 0..<5 where !imported.isHittable { app.swipeDown() }
+        XCTAssertTrue(imported.waitForExistence(timeout: 5))
+        imported.switches.firstMatch.tap()
+        imported.swipeLeft()
+        let delete = app.buttons["Delete"].firstMatch
+        XCTAssertTrue(delete.waitForExistence(timeout: 5))
+        delete.tap()
+        let confirmation = app.alerts["Delete Imported Plan?"]
+        XCTAssertTrue(confirmation.waitForExistence(timeout: 5))
+        confirmation.buttons["Delete"].tap()
+        XCTAssertTrue(imported.waitForNonExistence(timeout: 5))
+
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.staticTexts["John 3"].waitForExistence(timeout: 5))
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "Today’s Readings after manual day change"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+    }
+
+    @MainActor
+    func testBibleAppPreferencesRemainDeviceLocal() throws {
+        let app = launch()
+        app.buttons["manage-plans"].tap()
+        let youVersion = app.switches["YouVersion"]
+        XCTAssertTrue(youVersion.waitForExistence(timeout: 5))
+        XCTAssertEqual(youVersion.value as? String, "1")
+        youVersion.switches.firstMatch.tap()
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        app.buttons["manage-plans"].tap()
+        XCTAssertEqual(app.switches["YouVersion"].value as? String, "0")
     }
 }

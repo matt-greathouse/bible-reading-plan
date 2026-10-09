@@ -1,30 +1,27 @@
-//
-//  Bible_Reading_PlanApp.swift
-//  Bible Reading Plan
-//
-//  Created by Matt Greathouse on 2/17/25.
-//
-
 import SwiftUI
 
 @main
 struct Bible_Reading_PlanApp: App {
     @Environment(\.scenePhase) private var scenePhase
+    @StateObject private var store = ReadingPlanStore.live()
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .onAppear(perform: setupDailyCheck)
-                .onChange(of: scenePhase) { phase in
-                    if phase == .active {
-                        ReadingPlanCloudSync.shared.start()
-                    }
+            Group {
+                #if DEBUG
+                if store.uiTesting && ProcessInfo.processInfo.arguments.contains("--widget-previews") {
+                    WidgetPreviewGallery()
+                } else {
+                    ContentView(store: store)
+                }
+                #else
+                ContentView(store: store)
+                #endif
+            }
+                .task { await store.activate() }
+                .onChange(of: scenePhase) { _, phase in
+                    if phase == .active { Task { await store.activate() } }
                 }
         }
-    }
-
-    private func setupDailyCheck() {
-        ReadingPlanCloudSync.shared.start()
-        ReadingPlanService.shared.advanceDailyProgressIfNeeded()
     }
 }
