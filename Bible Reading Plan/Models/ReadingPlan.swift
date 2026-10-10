@@ -183,3 +183,21 @@ struct ReadingSnapshot: Equatable, Sendable {
         return ReadingSnapshot(plan: plan, dayIndex: index)
     }
 }
+
+/// Shared by app and widget; imported IDs must be encoded as query values, not URL paths.
+enum ReadingRoute {
+    static func url(planID: String) -> URL? {
+        var components = URLComponents()
+        components.scheme = "biblereadingplan"
+        components.host = "reading"
+        components.queryItems = [URLQueryItem(name: "planID", value: planID)]
+        return components.url
+    }
+    static func planID(from url: URL) -> String? {
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              components.scheme == "biblereadingplan", components.host == "reading",
+              let id = components.queryItems?.first(where: { $0.name == "planID" })?.value,
+              !id.isEmpty else { return nil }
+        return id
+    }
+}

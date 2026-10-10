@@ -5,14 +5,12 @@ struct ReadingPlanSelectionView: View {
     @ObservedObject var store: ReadingPlanStore
     @State private var showingImporter = false
     @State private var pendingDeletePlan: CatalogPlan?
-    @AppStorage private var youVersionEnabled: Bool
-    @AppStorage private var logosEnabled: Bool
+    @AppStorage private var preferredBibleApp: String
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     init(store: ReadingPlanStore) {
         self.store = store
-        _youVersionEnabled = AppStorage(wrappedValue: true, AppPreferenceKey.youVersionEnabled, store: store.preferences)
-        _logosEnabled = AppStorage(wrappedValue: false, AppPreferenceKey.logosEnabled, store: store.preferences)
+        _preferredBibleApp = AppStorage(wrappedValue: BibleApp.migrate(in: store.preferences).rawValue, BibleApp.preferenceKey, store: store.preferences)
     }
 
     var body: some View {
@@ -45,14 +43,18 @@ struct ReadingPlanSelectionView: View {
                         .pickerStyle(.wheel)
                         .accessibilityIdentifier("day-" + item.id)
                         .transition(reduceMotion ? .opacity : .opacity.combined(with: .move(edge: .top)))
+                        PlanReminderRow(store: store, plan: item)
                     }
                 }
                 .listRowBackground(ReadingPlanTheme.card)
                 .animation(reduceMotion ? nil : .easeInOut(duration: 0.22), value: isSelected)
             }
-            Section("Bible Apps") {
-                Toggle("YouVersion", isOn: $youVersionEnabled)
-                Toggle("Logos Bible", isOn: $logosEnabled)
+            Section("Bible App") {
+                Picker("Preferred Bible App", selection: $preferredBibleApp) {
+                    ForEach(BibleApp.allCases) { app in Text(app.title).tag(app.rawValue) }
+                }
+                .pickerStyle(.menu)
+                .accessibilityIdentifier("preferred-bible-app")
             }
             Section("iCloud Sync") {
                 LabeledContent("Status", value: store.syncStatus)
@@ -76,6 +78,12 @@ struct ReadingPlanSelectionView: View {
             if store.uiTesting {
                 Button("Import Test Fixture") { Task { await store.importTestFixture() } }
                     .accessibilityIdentifier("import-test-fixture")
+                Button("Open Test Reading Route") {
+                    if let id = store.state.selectedPlanIDs.last, let url = ReadingRoute.url(planID: id) {
+                        ReadingRouteHandler.shared.open(url: url)
+                    }
+                }
+                .accessibilityIdentifier("open-test-reading-route")
             }
         }
         .scrollContentBackground(.hidden)
@@ -89,6 +97,7 @@ struct ReadingPlanSelectionView: View {
                     .accessibilityLabel("Import Reading Plan")
             }
         }
+        .onChange(of: preferredBibleApp) { _, _ in Task { await store.reconcileReminders() } }
         .fileImporter(isPresented: $showingImporter, allowedContentTypes: [.json]) { result in
             switch result {
             case .success(let url): Task { await store.importPlan(from: url) }

@@ -15,6 +15,7 @@ final class ReadingPlanStore: ObservableObject {
     @Published var errorMessage: String?
     @Published private(set) var isWorking = false
 
+    let reminders: ReadingReminderManager
     let preferences: UserDefaults
     let repository: ReadingPlanRepository?
     private let coordinator: ReadingPlanSyncCoordinator?
@@ -28,9 +29,12 @@ final class ReadingPlanStore: ObservableObject {
 
     init(repository: ReadingPlanRepository?, cloud: any ReadingPlanCloudTransport,
          preferences: UserDefaults, observeCloud: Bool = false, uiTesting: Bool = false,
-         reloadWidgets: @escaping () -> Void = {}) {
+         reloadWidgets: @escaping () -> Void = {},
+         notificationClient: (any ReminderNotificationClient)? = nil) {
         self.repository = repository
         self.preferences = preferences
+        _ = BibleApp.migrate(in: preferences)
+        reminders = ReadingReminderManager(preferences: preferences, client: notificationClient ?? (uiTesting ? PreviewReminderNotificationClient() : SystemReminderNotificationClient()))
         self.reloadWidgets = reloadWidgets
         self.uiTesting = uiTesting
         coordinator = repository.map { ReadingPlanSyncCoordinator(repository: $0, cloud: cloud) }
@@ -75,7 +79,7 @@ final class ReadingPlanStore: ObservableObject {
 
     static func preview(selected: Bool = true) -> ReadingPlanStore {
         let preferences = UserDefaults(suiteName: "BibleReadingPlan.Preview." + UUID().uuidString)!
-        let store = ReadingPlanStore(repository: nil, cloud: OfflineReadingPlanCloud(), preferences: preferences)
+        let store = ReadingPlanStore(repository: nil, cloud: OfflineReadingPlanCloud(), preferences: preferences, notificationClient: PreviewReminderNotificationClient())
         store.isPreview = true
         store.plans = ReadingPlan.previewPlans.map { CatalogPlan(id: "bundled:\($0.id)", plan: $0) }
         if selected {
@@ -96,6 +100,7 @@ final class ReadingPlanStore: ObservableObject {
             defer { store.isWorking = false }
             do {
                 store.publish(try await Task.detached { try repository.load() }.value)
+                Task { await store.reconcileReminders() }
                 store.syncStatus = "Syncing…"
                 var syncError: Error?
                 do { try await coordinator.refresh() } catch { syncError = error }
@@ -106,10 +111,26 @@ final class ReadingPlanStore: ObservableObject {
                 store.finishSync(error: syncError)
             } catch { store.errorMessage = error.localizedDescription; store.syncStatus = "Unable to load" }
         }
+        await reconcileReminders()
+    }
+
+    /// Routes resolve local progress without waiting for the cloud queue.
+    func prepareReadingRoute() async {
+        guard let repository else { return }
+        do {
+            let snapshot = try await Task.detached { try repository.advance(now: Date(), calendar: .current) }.value
+            publish(snapshot)
+        } catch { errorMessage = error.localizedDescription }
+    }
+
+    func reconcileReminders() async {
+        let deleted = Set(lastSnapshot?.imports.values.filter(\.deleted).map(\.id) ?? [])
+        await reminders.reconcile(plans: plans, selected: state.selectedPlanIDs, deleted: deleted,
+                                  app: BibleApp.migrate(in: preferences))
     }
 
     func select(_ id: String, enabled: Bool) async {
-        if isPreview { Self.editSelection(&state, id: id, enabled: enabled); return }
+        if isPreview { Self.editSelection(&state, id: id, enabled: enabled); await reconcileReminders(); return }
         await mutate { repository in
             try repository.updateState { Self.editSelection(&$0, id: id, enabled: enabled) }
         }
@@ -218,7 +239,10 @@ final class ReadingPlanStore: ObservableObject {
         if pendingCount != snapshot.pendingCount { pendingCount = snapshot.pendingCount }
         if loadErrors != snapshot.loadErrors { loadErrors = snapshot.loadErrors }
         lastSnapshot = snapshot
-        if changed { reloadWidgets() }
+        if changed {
+            reloadWidgets()
+            Task { await self.reconcileReminders() }
+        }
     }
 
     private func handleQuotaFailure() async {

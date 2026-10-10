@@ -13,6 +13,7 @@ import SwiftUI
 struct SimpleEntry: TimelineEntry {
     let date: Date
     let reading: ReadingSnapshot?
+    var planID: String? = nil
     var message: String? = nil
 
     static var preview: SimpleEntry {
@@ -32,6 +33,7 @@ struct Bible_Reading_Plan_WidgetEntryView: View {
                 EmptyReadingPlanWidget(message: entry.message)
             }
         }
+        .widgetURL(entry.planID.flatMap { ReadingRoute.url(planID: $0) })
         .containerBackground(ReadingPlanTheme.background, for: .widget)
     }
 }
@@ -75,7 +77,7 @@ struct Provider: TimelineProvider {
                 ReadingSnapshot.resolve(id: $0, state: state, catalog: snapshot.catalog(bundled: repository.bundled))
             }
             let missing = !state.selectedPlanIDs.isEmpty || !state.unresolvedSelectedIDs.isEmpty
-            return SimpleEntry(date: now, reading: reading, message: reading == nil && missing ? "Open the app to download or restore this plan." : nil)
+            return SimpleEntry(date: now, reading: reading, planID: state.selectedPlanIDs.first, message: reading == nil && missing ? "Open the app to download or restore this plan." : nil)
         } catch {
             return SimpleEntry(date: now, reading: nil, message: "Open the app to check reading-plan storage.")
         }
