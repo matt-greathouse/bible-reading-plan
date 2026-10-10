@@ -14,7 +14,7 @@ struct Bible_Reading_PlanApp: App {
                     WidgetPreviewGallery()
                 } else {
                     ContentView(store: store, launcher: store.uiTesting
-                                ? BibleReadingLauncher(opener: PreviewBibleURLOpener()) : BibleReadingLauncher())
+                                ? BibleReadingLauncher(openURL: { _ in false }) : BibleReadingLauncher())
                 }
                 #else
                 ContentView(store: store)

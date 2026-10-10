@@ -99,8 +99,8 @@ final class ReadingPlanStore: ObservableObject {
             store.isWorking = true
             defer { store.isWorking = false }
             do {
-                store.publish(try await Task.detached { try repository.load() }.value)
-                Task { await store.reconcileReminders() }
+                store.publish(try await Task.detached { try repository.load() }.value, reconcileReminders: false)
+                await store.reconcileReminders()
                 store.syncStatus = "Syncing…"
                 var syncError: Error?
                 do { try await coordinator.refresh() } catch { syncError = error }
@@ -111,7 +111,6 @@ final class ReadingPlanStore: ObservableObject {
                 store.finishSync(error: syncError)
             } catch { store.errorMessage = error.localizedDescription; store.syncStatus = "Unable to load" }
         }
-        await reconcileReminders()
     }
 
     /// Routes resolve local progress without waiting for the cloud queue.
@@ -226,23 +225,23 @@ final class ReadingPlanStore: ObservableObject {
         await task.value
     }
 
-    private func publish(_ snapshot: ReadingPlanSnapshot) {
+    private func publish(_ snapshot: ReadingPlanSnapshot, reconcileReminders: Bool = true) {
         let newPlans = snapshot.catalog(bundled: repository?.bundled ?? [])
         var visibleState = snapshot.envelope.state
         for (id, pending) in pendingPickerDays where visibleState.selectedPlanIDs.contains(id) && newPlans.contains(where: { $0.id == id }) {
             visibleState.progressByPlan[id] = pending.index
         }
         let changed = lastSnapshot?.envelope.state != snapshot.envelope.state || plans != newPlans
+        let remindersChanged = state.selectedPlanIDs != visibleState.selectedPlanIDs || plans != newPlans ||
+            lastSnapshot?.imports.values.filter(\.deleted).map(\.id).sorted() != snapshot.imports.values.filter(\.deleted).map(\.id).sorted()
         if state != visibleState { state = visibleState }
         if plans != newPlans { plans = newPlans }
         if lastSuccessfulSync != snapshot.lastSuccessfulSync { lastSuccessfulSync = snapshot.lastSuccessfulSync }
         if pendingCount != snapshot.pendingCount { pendingCount = snapshot.pendingCount }
         if loadErrors != snapshot.loadErrors { loadErrors = snapshot.loadErrors }
         lastSnapshot = snapshot
-        if changed {
-            reloadWidgets()
-            Task { await self.reconcileReminders() }
-        }
+        if changed { reloadWidgets() }
+        if reconcileReminders && remindersChanged { Task { await self.reconcileReminders() } }
     }
 
     private func handleQuotaFailure() async {

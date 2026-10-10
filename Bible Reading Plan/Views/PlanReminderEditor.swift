@@ -1,14 +1,13 @@
 import SwiftUI
 
 struct PlanReminderEditor: View {
-    @ObservedObject var store: ReadingPlanStore
+    let store: ReadingPlanStore
     @ObservedObject var reminders: ReadingReminderManager
     let plan: CatalogPlan
     @State private var draft: PlanReminder
     @State private var saving = false
     @State private var error: String?
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.openURL) private var openURL
 
     init(store: ReadingPlanStore, plan: CatalogPlan) {
         self.store = store
@@ -57,8 +56,8 @@ struct PlanReminderEditor: View {
                 if reminders.blocked {
                     Section {
                         Text("Notifications are turned off in Settings. Your schedule is saved.")
-                        Button("Open Settings") {
-                            if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
+                        if let url = URL(string: UIApplication.openSettingsURLString) {
+                            Link("Open Settings", destination: url)
                         }
                     }
                 }
@@ -93,52 +92,5 @@ struct PlanReminderEditor: View {
             .tint(ReadingPlanTheme.accent)
             .interactiveDismissDisabled(saving)
         }
-    }
-}
-
-struct PlanReminderRow: View {
-    @ObservedObject var store: ReadingPlanStore
-    @ObservedObject var reminders: ReadingReminderManager
-    let plan: CatalogPlan
-    @State private var editing = false
-    @Environment(\.openURL) private var openURL
-
-    init(store: ReadingPlanStore, plan: CatalogPlan) {
-        self.store = store
-        self.reminders = store.reminders
-        self.plan = plan
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Button { editing = true } label: {
-                HStack {
-                    Label("Reminder", systemImage: "bell")
-                    Spacer()
-                    Text(summary).foregroundStyle(.secondary).multilineTextAlignment(.trailing)
-                    Image(systemName: "chevron.right").font(.caption).foregroundStyle(.secondary)
-                }
-                .padding(.vertical, 8)
-                .frame(minHeight: 44)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityIdentifier("reminder-" + plan.id)
-            if reminders.blocked && reminders.configuration(for: plan.id).enabled {
-                Button("Open Notification Settings") {
-                    if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
-                }.font(.footnote)
-            }
-        }
-        .sheet(isPresented: $editing) { PlanReminderEditor(store: store, plan: plan) }
-    }
-
-    private var summary: String {
-        let configuration = reminders.configuration(for: plan.id)
-        guard configuration.enabled else { return "Off" }
-        if reminders.blocked { return "Blocked in Settings" }
-        if let error = reminders.errors[plan.id] { return error }
-        guard reminders.scheduledPlanIDs.contains(plan.id) else { return "Not scheduled" }
-        return configuration.scheduleDescription
     }
 }

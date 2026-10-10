@@ -3,6 +3,8 @@ import UniformTypeIdentifiers
 
 struct ReadingPlanSelectionView: View {
     @ObservedObject var store: ReadingPlanStore
+    @ObservedObject private var reminders: ReadingReminderManager
+    @State private var editingReminder: CatalogPlan?
     @State private var showingImporter = false
     @State private var pendingDeletePlan: CatalogPlan?
     @AppStorage private var preferredBibleApp: String
@@ -10,6 +12,7 @@ struct ReadingPlanSelectionView: View {
 
     init(store: ReadingPlanStore) {
         self.store = store
+        self.reminders = store.reminders
         _preferredBibleApp = AppStorage(wrappedValue: BibleApp.migrate(in: store.preferences).rawValue, BibleApp.preferenceKey, store: store.preferences)
     }
 
@@ -43,7 +46,23 @@ struct ReadingPlanSelectionView: View {
                         .pickerStyle(.wheel)
                         .accessibilityIdentifier("day-" + item.id)
                         .transition(reduceMotion ? .opacity : .opacity.combined(with: .move(edge: .top)))
-                        PlanReminderRow(store: store, plan: item)
+                        Button { editingReminder = item } label: {
+                            HStack {
+                                Label("Reminder", systemImage: "bell")
+                                Spacer()
+                                Text(reminders.summary(for: item.id)).foregroundStyle(.secondary).multilineTextAlignment(.trailing)
+                                Image(systemName: "chevron.right").font(.caption).foregroundStyle(.secondary)
+                            }
+                            .padding(.vertical, 8)
+                            .frame(minHeight: 44)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("reminder-" + item.id)
+                        if reminders.blocked && reminders.configuration(for: item.id).enabled,
+                           let url = URL(string: UIApplication.openSettingsURLString) {
+                            Link("Open Notification Settings", destination: url).font(.footnote)
+                        }
                     }
                 }
                 .listRowBackground(ReadingPlanTheme.card)
@@ -98,6 +117,7 @@ struct ReadingPlanSelectionView: View {
             }
         }
         .onChange(of: preferredBibleApp) { _, _ in Task { await store.reconcileReminders() } }
+        .sheet(item: $editingReminder) { PlanReminderEditor(store: store, plan: $0) }
         .fileImporter(isPresented: $showingImporter, allowedContentTypes: [.json]) { result in
             switch result {
             case .success(let url): Task { await store.importPlan(from: url) }

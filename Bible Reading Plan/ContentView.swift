@@ -6,9 +6,7 @@ struct ContentView: View {
     @AppStorage private var preferredBibleApp: String
     @ObservedObject private var routes = ReadingRouteHandler.shared
     @State private var navigationPath = NavigationPath()
-    @State private var focusedPlanID: String?
-    @State private var focusToken = UUID()
-    @State private var routeMessage: String?
+    @State private var focusedRoute: PendingReadingRoute?
     @State private var hasAppeared = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -42,9 +40,6 @@ struct ContentView: View {
                                 .opacity(hasAppeared ? 1 : 0)
                                 .offset(y: hasAppeared ? 0 : 10)
 
-                                if let routeMessage {
-                                    Text(routeMessage).font(.subheadline).foregroundStyle(ReadingPlanTheme.secondaryText)
-                                }
                                 ForEach(store.state.selectedPlanIDs, id: \.self) { id in
                                     if let reading = store.reading(for: id) {
                                         ReadingCard(plan: reading.plan, day: reading.day, dayIndex: reading.dayIndex,
@@ -55,7 +50,7 @@ struct ContentView: View {
                                             .id(id)
                                             .overlay {
                                                 RoundedRectangle(cornerRadius: ReadingPlanTheme.cardCornerRadius)
-                                                    .stroke(focusedPlanID == id ? ReadingPlanTheme.accent : .clear, lineWidth: 2)
+                                                    .stroke(focusedRoute?.planID == id ? ReadingPlanTheme.accent : .clear, lineWidth: 2)
                                             }
                                             .accessibilityIdentifier("reading-" + id)
                                     } else {
@@ -73,8 +68,8 @@ struct ContentView: View {
                             .padding(.vertical, 20)
                         }
                     }
-                    .task(id: focusToken) {
-                        guard let id = focusedPlanID else { return }
+                    .task(id: focusedRoute?.token) {
+                        guard let id = focusedRoute?.planID else { return }
                         await Task.yield()
                         guard !Task.isCancelled else { return }
                         if reduceMotion { proxy.scrollTo(id, anchor: .top) }
@@ -110,21 +105,17 @@ struct ContentView: View {
             await store.prepareReadingRoute()
             guard !Task.isCancelled else { return }
             if store.state.selectedPlanIDs.contains(route.planID), store.reading(for: route.planID) != nil {
-                routeMessage = nil
-                focusedPlanID = route.planID
-                // Allow the scroll view to lay out newly loaded cards before scrolling.
-                await Task.yield()
-                focusToken = UUID()
+                focusedRoute = route
             } else {
-                focusedPlanID = nil
-                routeMessage = "This plan is no longer selected or is unavailable. Open Manage Plans to check it."
-                store.errorMessage = routeMessage
+                focusedRoute = nil
+                store.errorMessage = "This plan is no longer selected or is unavailable. Open Manage Plans to check it."
             }
+            routes.consume(route)
         }
-        .task(id: focusToken) {
-            guard focusedPlanID != nil else { return }
+        .task(id: focusedRoute?.token) {
+            guard focusedRoute != nil else { return }
             do { try await Task.sleep(for: .seconds(3)) } catch { return }
-            focusedPlanID = nil
+            focusedRoute = nil
         }
     }
 }

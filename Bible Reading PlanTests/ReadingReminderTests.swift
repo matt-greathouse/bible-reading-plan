@@ -4,18 +4,23 @@ import UserNotifications
 
 @MainActor
 private final class FakeNotificationClient: ReminderNotificationClient {
-    var auth = ReminderAuthorization(status: .authorized, alertsEnabled: true)
+    var auth = ReminderAuthorization.allowed
     var requests: [String: UNNotificationRequest] = [:]
     var permissionRequests = 0
+    var authorizationReads = 0
     var additions = 0
     var failure = false
     var silentlyDrop = false
     var removedDelivered: [String] = []
-    func authorization() async -> ReminderAuthorization { auth }
-    func requestPermission() async throws { permissionRequests += 1; auth = .init(status: .denied, alertsEnabled: false) }
+    var onAdd: (() async -> Void)?
+    func authorization() async -> ReminderAuthorization { authorizationReads += 1; return auth }
+    func requestPermission() async throws { permissionRequests += 1; auth = .blocked }
     func pending() async -> [UNNotificationRequest] { Array(requests.values) }
     func add(_ request: UNNotificationRequest) async throws {
         additions += 1
+        let callback = onAdd
+        onAdd = nil
+        await callback?()
         if failure { throw NSError(domain: "Tests", code: 1) }
         if !silentlyDrop { requests[request.identifier] = request }
     }
@@ -24,7 +29,7 @@ private final class FakeNotificationClient: ReminderNotificationClient {
 }
 
 @MainActor
-private final class FakeURLOpener: BibleURLOpener {
+private final class FakeURLOpener {
     var result = false
     var urls: [URL] = []
     func open(_ url: URL) async -> Bool { urls.append(url); return result }
@@ -115,7 +120,7 @@ final class ReadingReminderTests: XCTestCase {
     }
 
     func testPermissionIsOnlyRequestedOnExplicitEnabledSaveAndDeniedScheduleIsRetained() async throws {
-        client.auth = .init(status: .notDetermined, alertsEnabled: false)
+        client.auth = .notDetermined
         await reconcile()
         XCTAssertEqual(client.permissionRequests, 0)
         try await manager.save(PlanReminder(), for: "bundled:1")
@@ -128,10 +133,10 @@ final class ReadingReminderTests: XCTestCase {
         XCTAssertTrue(client.requests.isEmpty)
         try await manager.save(PlanReminder(enabled: true), for: "bundled:1")
         XCTAssertEqual(client.permissionRequests, 1)
-        client.auth = .init(status: .authorized, alertsEnabled: true)
+        client.auth = .allowed
         await reconcile()
         XCTAssertEqual(manager.scheduledPlanIDs, ["bundled:1"])
-        client.auth.alertsEnabled = false
+        client.auth = .blocked
         await reconcile()
         XCTAssertTrue(manager.blocked)
         XCTAssertTrue(client.requests.isEmpty)
@@ -171,6 +176,21 @@ final class ReadingReminderTests: XCTestCase {
         await reconcile(selected: [])
         XCTAssertTrue(client.requests.isEmpty)
         XCTAssertTrue(manager.scheduledPlanIDs.isEmpty)
+    }
+
+    func testSaveDuringSchedulingDoesNotPublishOrVerifyAgainstChangedConfiguration() async throws {
+        try await manager.save(PlanReminder(enabled: true), for: "bundled:1")
+        client.onAdd = { [self] in
+            try? await manager.save(PlanReminder(enabled: true, hour: 11), for: "bundled:1")
+        }
+        await reconcile()
+        XCTAssertEqual(manager.configuration(for: "bundled:1").hour, 11)
+        XCTAssertEqual((client.requests.values.first?.trigger as? UNCalendarNotificationTrigger)?.dateComponents.hour, 8)
+        XCTAssertTrue(manager.scheduledPlanIDs.isEmpty, "The old pass must not claim the new configuration is scheduled")
+        XCTAssertNil(manager.errors["bundled:1"], "Do not verify an old request against the new configuration")
+        await reconcile()
+        XCTAssertEqual((client.requests.values.first?.trigger as? UNCalendarNotificationTrigger)?.dateComponents.hour, 11)
+        XCTAssertEqual(manager.scheduledPlanIDs, ["bundled:1"])
     }
 
     func testCapacityGuardPreservesUnrelatedRequests() async throws {
@@ -224,7 +244,7 @@ final class ReadingReminderTests: XCTestCase {
 
     func testFailedOpeningIsReturnedAndAlternateCanSucceed() async {
         let opener = FakeURLOpener()
-        let launcher = BibleReadingLauncher(opener: opener)
+        let launcher = BibleReadingLauncher(openURL: opener.open)
         let day = Day(book: "JHN", startChapter: 3, endChapter: 3)
         let failure = await launcher.open(day, in: .youVersion)
         XCTAssertFalse(failure)
@@ -246,6 +266,34 @@ final class ReadingReminderTests: XCTestCase {
         let token = router.pending?.token
         router.open(url: url)
         XCTAssertNotEqual(router.pending?.token, token)
+    }
+
+    func testConsumedRouteCannotReplayAndDoesNotClearANewerRequest() async throws {
+        let router = ReadingRouteHandler()
+        router.open(planID: "bundled:1")
+        let first = try XCTUnwrap(router.pending)
+        router.open(planID: "bundled:2")
+        let second = try XCTUnwrap(router.pending)
+        router.consume(first)
+        XCTAssertEqual(router.pending?.token, second.token)
+        router.consume(second)
+        XCTAssertNil(router.pending)
+        router.open(planID: "bundled:2")
+        XCTAssertNotEqual(router.pending?.token, second.token)
+    }
+
+    func testActivationReconcilesOnceAndProgressChangesDoNotReconcile() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let repository = ReadingPlanRepository(directory: root, bundled: ReadingPlan.previewPlans)
+        _ = try repository.updateState { $0.selectedPlanIDs = ["bundled:1"] }
+        let store = ReadingPlanStore(repository: repository, cloud: OfflineReadingPlanCloud(), preferences: preferences, notificationClient: client)
+        await store.activate()
+        XCTAssertEqual(client.authorizationReads, 1)
+        await store.setDay(1, for: "bundled:1")
+        await Task.yield()
+        XCTAssertEqual(client.authorizationReads, 1)
+        XCTAssertEqual(store.reading(for: "bundled:1")?.dayIndex, 1)
     }
 
     func testRoutingRefreshesLocalReadingWithoutCloudActivation() async throws {

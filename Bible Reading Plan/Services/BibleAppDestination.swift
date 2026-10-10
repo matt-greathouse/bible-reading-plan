@@ -35,27 +35,10 @@ enum BibleApp: String, CaseIterable, Identifiable {
 }
 
 @MainActor
-protocol BibleURLOpener {
-    func open(_ url: URL) async -> Bool
-}
-
-@MainActor
-struct SystemBibleURLOpener: BibleURLOpener {
-    func open(_ url: URL) async -> Bool { await UIApplication.shared.open(url, options: [:]) }
-}
-
-@MainActor
 struct BibleReadingLauncher {
-    var opener: any BibleURLOpener = SystemBibleURLOpener()
+    var openURL: @MainActor (URL) async -> Bool = { await UIApplication.shared.open($0, options: [:]) }
     func open(_ day: Day, in app: BibleApp) async -> Bool {
         guard let url = app.url(for: day) else { return false }
-        return await opener.open(url)
+        return await openURL(url)
     }
 }
-
-#if DEBUG
-/// UI tests exercise the failure UI without handing off to an installed third-party app.
-struct PreviewBibleURLOpener: BibleURLOpener {
-    func open(_ url: URL) async -> Bool { false }
-}
-#endif

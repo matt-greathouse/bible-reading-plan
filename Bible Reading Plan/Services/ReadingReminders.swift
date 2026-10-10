@@ -43,12 +43,8 @@ struct PlanReminder: Codable, Equatable {
     }
 }
 
-struct ReminderAuthorization {
-    var status: UNAuthorizationStatus
-    var alertsEnabled: Bool
-    var permitsDelivery: Bool {
-        alertsEnabled && (status == .authorized || status == .provisional || status == .ephemeral)
-    }
+enum ReminderAuthorization {
+    case notDetermined, allowed, blocked
 }
 
 @MainActor
@@ -66,7 +62,9 @@ final class SystemReminderNotificationClient: ReminderNotificationClient {
     private let center = UNUserNotificationCenter.current()
     func authorization() async -> ReminderAuthorization {
         let settings = await center.notificationSettings()
-        return ReminderAuthorization(status: settings.authorizationStatus, alertsEnabled: settings.alertSetting == .enabled)
+        if settings.authorizationStatus == .notDetermined { return .notDetermined }
+        return settings.alertSetting == .enabled && [.authorized, .provisional, .ephemeral].contains(settings.authorizationStatus)
+            ? .allowed : .blocked
     }
     func requestPermission() async throws { _ = try await center.requestAuthorization(options: [.alert]) }
     func pending() async -> [UNNotificationRequest] { await center.pendingNotificationRequests() }
@@ -79,7 +77,7 @@ final class SystemReminderNotificationClient: ReminderNotificationClient {
 @MainActor
 final class PreviewReminderNotificationClient: ReminderNotificationClient {
     var requests: [String: UNNotificationRequest] = [:]
-    func authorization() async -> ReminderAuthorization { ReminderAuthorization(status: .authorized, alertsEnabled: true) }
+    func authorization() async -> ReminderAuthorization { .allowed }
     func requestPermission() async throws {}
     func pending() async -> [UNNotificationRequest] { Array(requests.values) }
     func add(_ request: UNNotificationRequest) async throws { requests[request.identifier] = request }
@@ -114,9 +112,11 @@ final class ReadingReminderManager: ObservableObject {
         updated[id] = configuration
         preferences.set(try JSONEncoder().encode(updated), forKey: Self.preferenceKey)
         configurations = updated
+        scheduledPlanIDs.remove(id)
+        errors.removeValue(forKey: id)
         if configuration.enabled {
             let authorization = await client.authorization()
-            if authorization.status == .notDetermined { try await client.requestPermission() }
+            if authorization == .notDetermined { try await client.requestPermission() }
         }
     }
 
@@ -130,63 +130,61 @@ final class ReadingReminderManager: ObservableObject {
         await task.value
     }
 
+    func summary(for id: String) -> String {
+        let reminder = configuration(for: id)
+        guard reminder.enabled else { return "Off" }
+        if blocked { return "Blocked in Settings" }
+        return errors[id] ?? (scheduledPlanIDs.contains(id) ? reminder.scheduleDescription : "Not scheduled")
+    }
+
     private func performReconcile(plans: [CatalogPlan], selected: [String], deleted: Set<String>, app: BibleApp) async {
         if !deleted.isEmpty {
             configurations = configurations.filter { !deleted.contains($0.key) }
             if let data = try? JSONEncoder().encode(configurations) { preferences.set(data, forKey: Self.preferenceKey) }
         }
+        // Freeze configuration and expected requests before any system call can suspend this pass.
+        let snapshot = configurations
+        let batches = Dictionary(uniqueKeysWithValues: plans.filter { selected.contains($0.id) }.map {
+            ($0.id, (snapshot[$0.id] ?? PlanReminder()).requests(planID: $0.id, name: $0.plan.name, app: app))
+        }).filter { !$0.value.isEmpty }
         errors = [:]
         scheduledPlanIDs = []
         let authorization = await client.authorization()
-        blocked = authorization.status == .denied || (authorization.status != .notDetermined && !authorization.permitsDelivery)
-        let pending = await client.pending()
-        let owned = pending.filter { $0.identifier.hasPrefix(Self.prefix) }
-        let active = plans.filter { selected.contains($0.id) && configuration(for: $0.id).enabled }
-        let desired = authorization.permitsDelivery ? active.flatMap { configuration(for: $0.id).requests(planID: $0.id, name: $0.plan.name, app: app) } : []
-        let desiredIDs = Set(desired.map(\.identifier))
-        let obsolete = owned.filter { !desiredIDs.contains($0.identifier) }.map(\.identifier)
-        client.remove(obsolete)
-        client.removeDelivered(obsolete)
-        // Includes requests belonging to other features; never silently discard a user's schedule.
-        guard desired.count + pending.filter({ !$0.identifier.hasPrefix(Self.prefix) }).count <= 64 else {
-            for plan in active {
-                let expected = desired.filter { ($0.content.userInfo["planID"] as? String) == plan.id }
-                if !expected.isEmpty && expected.allSatisfy({ request in
-                    Self.matches(owned.first { $0.identifier == request.identifier }, request)
-                }) {
-                    scheduledPlanIDs.insert(plan.id)
-                } else {
-                    errors[plan.id] = "Too many reminders are scheduled. Turn off another reminder or select fewer weekdays."
-                    client.remove(owned.filter { ($0.content.userInfo["planID"] as? String) == plan.id }.map(\.identifier))
-                }
-            }
-            return
-        }
-        guard authorization.permitsDelivery else { return }
-        for plan in active {
-            let requests = desired.filter { ($0.content.userInfo["planID"] as? String) == plan.id }
+        blocked = authorization == .blocked
+        let pending = Dictionary(uniqueKeysWithValues: await client.pending().map { ($0.identifier, $0) })
+        let desiredIDs = Set(authorization == .allowed ? batches.values.flatMap { $0.map(\.identifier) } : [])
+        cancel(pending.keys.filter { $0.hasPrefix(Self.prefix) && !desiredIDs.contains($0) })
+        guard authorization == .allowed else { return }
+        let hasCapacity = desiredIDs.count + pending.keys.filter { !$0.hasPrefix(Self.prefix) }.count <= 64
+        var failures: [String: String] = [:]
+        for (id, requests) in batches {
             do {
-                for request in requests {
-                    let existing = owned.first { $0.identifier == request.identifier }
-                    if !Self.matches(existing, request) { try await client.add(request) }
+                guard hasCapacity || requests.allSatisfy({ Self.matches(pending[$0.identifier], $0) }) else {
+                    throw ReminderError.capacity
+                }
+                for request in requests where !Self.matches(pending[request.identifier], request) {
+                    try await client.add(request)
                 }
             } catch {
-                client.remove(requests.map(\.identifier))
-                errors[plan.id] = "Unable to schedule this reminder: \(error.localizedDescription)"
+                failures[id] = "Unable to schedule this reminder: \(error.localizedDescription)"
+                cancel(requests.map(\.identifier))
             }
         }
-        let registered = await client.pending()
-        for plan in active where errors[plan.id] == nil {
-            let expected = configuration(for: plan.id).requests(planID: plan.id, name: plan.plan.name, app: app)
-            if !expected.isEmpty && expected.allSatisfy({ request in
-                Self.matches(registered.first { $0.identifier == request.identifier }, request)
-            }) {
-                scheduledPlanIDs.insert(plan.id)
-            } else {
-                client.remove(expected.map(\.identifier))
-                errors[plan.id] = "This reminder was not registered. Please try saving it again."
+        let registered = Dictionary(uniqueKeysWithValues: await client.pending().map { ($0.identifier, $0) })
+        for (id, requests) in batches {
+            guard configurations[id] == snapshot[id] else { continue }
+            if let failure = failures[id] { errors[id] = failure }
+            else if requests.allSatisfy({ Self.matches(registered[$0.identifier], $0) }) { scheduledPlanIDs.insert(id) }
+            else {
+                cancel(requests.map(\.identifier))
+                errors[id] = "This reminder was not registered. Please try saving it again."
             }
         }
+    }
+
+    private func cancel(_ ids: [String]) {
+        client.remove(ids)
+        client.removeDelivered(ids)
     }
 
     private static func matches(_ existing: UNNotificationRequest?, _ desired: UNNotificationRequest) -> Bool {
@@ -200,6 +198,11 @@ final class ReadingReminderManager: ObservableObject {
 }
 
 enum ReminderError: LocalizedError {
-    case invalidSchedule
-    var errorDescription: String? { "Choose a valid time and at least one weekday." }
+    case invalidSchedule, capacity
+    var errorDescription: String? {
+        switch self {
+        case .invalidSchedule: return "Choose a valid time and at least one weekday."
+        case .capacity: return "Too many reminders are scheduled. Turn off another reminder or select fewer weekdays."
+        }
+    }
 }

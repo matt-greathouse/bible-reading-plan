@@ -10,6 +10,9 @@ struct PendingReadingRoute {
 final class ReadingRouteHandler: ObservableObject {
     static let shared = ReadingRouteHandler()
     @Published var pending: PendingReadingRoute?
+    func consume(_ route: PendingReadingRoute) {
+        if pending?.token == route.token { pending = nil }
+    }
     func open(planID: String) { pending = PendingReadingRoute(planID: planID) }
     func open(url: URL) {
         guard let id = ReadingRoute.planID(from: url) else { return }
